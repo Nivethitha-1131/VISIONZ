@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VISIONZ — Reports</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{--bg:#020617;--surface:#0F172A;--card:#111827;--hover:#1E293B;--accent:#38bdf8;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--text:#e2e8f0;--dim:#64748b;--border:rgba(56,189,248,0.1);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);min-height:100vh;}
+.page-wrap{padding:1.5rem;max-width:1200px;margin:0 auto;}
+.page-title{font-family:'Orbitron',sans-serif;font-size:1.3rem;font-weight:700;color:#fff;letter-spacing:2px;margin-bottom:0.25rem;}
+.page-title span{color:var(--accent);}
+.page-sub{font-size:0.78rem;color:var(--dim);margin-bottom:1.5rem;}
+
+/* FILTER BAR */
+.filter-bar{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1rem 1.25rem;display:flex;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;}
+.period-tabs{display:flex;gap:0.4rem;}
+.period-tab{background:transparent;border:1px solid var(--border);color:var(--dim);font-size:0.78rem;font-weight:600;padding:0.4rem 0.9rem;border-radius:8px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;}
+.period-tab.active{border-color:rgba(56,189,248,0.5);color:var(--accent);background:rgba(56,189,248,0.08);}
+.date-inputs{display:flex;align-items:center;gap:0.5rem;}
+.date-label{font-size:0.72rem;color:var(--dim);font-weight:600;}
+.date-input{background:var(--hover);border:1px solid var(--border);color:var(--text);font-size:0.8rem;padding:0.4rem 0.75rem;border-radius:8px;font-family:'DM Mono',monospace;outline:none;transition:border 0.2s;}
+.date-input:focus{border-color:rgba(56,189,248,0.4);}
+.load-btn{margin-left:auto;background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);color:var(--accent);font-size:0.78rem;font-weight:700;padding:0.45rem 1.1rem;border-radius:9px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:6px;}
+.load-btn:hover{background:rgba(56,189,248,0.15);}
+
+/* SUMMARY STRIP */
+.summary-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;margin-bottom:1.5rem;}
+.sum-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.1rem;text-align:center;}
+.sum-num{font-family:'Orbitron',sans-serif;font-size:1.6rem;font-weight:700;line-height:1;}
+.sum-num.blue{color:var(--accent);}
+.sum-num.red{color:var(--red);}
+.sum-num.green{color:var(--green);}
+.sum-num.amber{color:var(--amber);}
+.sum-lbl{font-size:0.62rem;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px;font-weight:600;}
+
+/* REPORTS TABLE */
+.reports-card{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.reports-card-header{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
+.reports-card-title{font-size:0.9rem;font-weight:700;color:#fff;}
+.dl-all-btn{background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);color:var(--accent);font-size:0.72rem;font-weight:700;padding:0.4rem 0.9rem;border-radius:8px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:5px;}
+.dl-all-btn:hover{background:rgba(56,189,248,0.12);}
+table.rep-table{width:100%;border-collapse:collapse;}
+table.rep-table thead th{font-family:'DM Mono',monospace;font-size:0.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--dim);padding:0.65rem 1.1rem;text-align:left;border-bottom:1px solid var(--border);white-space:nowrap;}
+table.rep-table tbody td{padding:0.9rem 1.1rem;border-bottom:1px solid var(--border);font-size:0.82rem;vertical-align:middle;}
+table.rep-table tbody tr:last-child td{border-bottom:none;}
+table.rep-table tbody tr:hover td{background:rgba(30,41,59,0.5);}
+.type-badge{font-size:0.6rem;font-weight:800;padding:3px 8px;border-radius:6px;letter-spacing:1px;}
+.badge-daily{background:rgba(56,189,248,0.12);color:var(--accent);border:1px solid rgba(56,189,248,0.3);}
+.badge-weekly{background:rgba(167,139,250,0.12);color:#a78bfa;border:1px solid rgba(167,139,250,0.3);}
+.badge-monthly{background:rgba(245,158,11,0.12);color:var(--amber);border:1px solid rgba(245,158,11,0.3);}
+.score-pill{font-family:'DM Mono',monospace;font-size:0.78rem;font-weight:700;}
+.btn-download{background:rgba(56,189,248,0.06);border:1px solid rgba(56,189,248,0.2);color:var(--accent);font-size:0.72rem;font-weight:700;padding:0.35rem 0.8rem;border-radius:8px;cursor:pointer;font-family:'Outfit',sans-serif;transition:all 0.2s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;}
+.btn-download:hover{background:rgba(56,189,248,0.15);}
+.btn-download.downloading{opacity:0.7;cursor:not-allowed;}
+
+/* EMPTY STATE */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:4rem 1.5rem;text-align:center;gap:1rem;}
+.empty-icon{font-size:3.5rem;opacity:0.35;}
+.empty-title{font-family:'Orbitron',sans-serif;font-size:0.9rem;font-weight:700;color:var(--dim);letter-spacing:2px;}
+.empty-sub{font-size:0.82rem;color:var(--dim);max-width:340px;line-height:1.7;}
+.empty-cta{background:rgba(56,189,248,0.08);border:1px solid rgba(56,189,248,0.25);color:var(--accent);font-size:0.78rem;font-weight:700;padding:0.6rem 1.4rem;border-radius:10px;text-decoration:none;font-family:'Outfit',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;margin-top:0.25rem;}
+.empty-cta:hover{background:rgba(56,189,248,0.15);color:var(--accent);}
+
+/* TOAST */
+.toast-wrap{position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;}
+.toast-msg{background:#1E293B;border:1px solid rgba(34,197,94,0.3);color:var(--green);font-size:0.8rem;font-weight:600;padding:0.7rem 1.2rem;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.4);transform:translateY(80px);opacity:0;transition:all 0.35s;display:flex;align-items:center;gap:8px;}
+.toast-msg.show{transform:translateY(0);opacity:1;}
+
+@media(max-width:768px){
+  .summary-strip{grid-template-columns:1fr 1fr;}
+  .filter-bar{flex-direction:column;align-items:flex-start;}
+  .load-btn{margin-left:0;}
+}
+</style>
+</head>
+<body>
+<script src="js/navbar.js"></script>
+
+<div class="page-wrap">
+  <div class="page-title">REPORTS <span>CENTER</span></div>
+  <div class="page-sub">Download quality control reports from your video analysis sessions</div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div style="font-size:0.72rem;color:var(--dim);font-weight:600;letter-spacing:1px;">PERIOD</div>
+    <div class="period-tabs">
+      <button class="period-tab active" onclick="setPeriod('all',this)">All</button>
+      <button class="period-tab" onclick="setPeriod('daily',this)">Daily</button>
+      <button class="period-tab" onclick="setPeriod('weekly',this)">Weekly</button>
+      <button class="period-tab" onclick="setPeriod('monthly',this)">Monthly</button>
+    </div>
+    <div class="date-inputs">
+      <span class="date-label">From</span>
+      <input type="date" class="date-input" id="dateFrom">
+      <span class="date-label">To</span>
+      <input type="date" class="date-input" id="dateTo">
+    </div>
+    <button class="load-btn" onclick="loadReports()"><i class="bi bi-arrow-clockwise"></i> LOAD REPORTS</button>
+  </div>
+
+  <!-- SUMMARY STRIP -->
+  <div class="summary-strip">
+    <div class="sum-card"><div class="sum-num blue" id="sumScanned">0</div><div class="sum-lbl">Scanned</div></div>
+    <div class="sum-card"><div class="sum-num red"  id="sumDefects">0</div><div class="sum-lbl">Defects</div></div>
+    <div class="sum-card"><div class="sum-num green" id="sumPass">—</div><div class="sum-lbl">Pass Rate</div></div>
+    <div class="sum-card"><div class="sum-num amber" id="sumReports">0</div><div class="sum-lbl">Reports</div></div>
+  </div>
+
+  <!-- REPORTS TABLE -->
+  <div class="reports-card">
+    <div class="reports-card-header">
+      <div class="reports-card-title">Available Reports</div>
+      <button class="dl-all-btn" onclick="downloadAll()" id="dlAllBtn" style="display:none;"><i class="bi bi-download"></i> Download All</button>
+    </div>
+    <div id="reportsContent">
+      <!-- Empty state by default -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">📋</div>
+        <div class="empty-title">NO REPORTS YET</div>
+        <div class="empty-sub">
+          Reports are generated after you upload and analyze a video on the Monitor page.
+          Each analysis session creates a downloadable PDF report.
+        </div>
+        <a href="landing.html" class="empty-cta"><i class="bi bi-camera-video"></i> Go to Monitor → Upload Video</a>
+      </div>
+      <div style="overflow-x:auto;display:none;" id="tableWrap">
+        <table class="rep-table">
+          <thead>
+            <tr>
+              <th>Report Name</th><th>Type</th><th>Period</th>
+              <th>Scanned</th><th>Defects</th><th>Quality Score</th>
+              <th>Generated</th><th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="repTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap"><div class="toast-msg" id="toastMsg"><i class="bi bi-check-circle-fill"></i><span id="toastText">Downloaded!</span></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js"></script>
+<script>
+Auth.guard();
+const { jsPDF } = window.jspdf;
+
+let currentPeriod = 'all';
+let allReports    = [];
+
+// ── SET DEFAULT DATES ──
+const today = new Date();
+document.getElementById('dateTo').value   = today.toISOString().split('T')[0];
+const monthAgo = new Date(today); monthAgo.setMonth(monthAgo.getMonth() - 1);
+document.getElementById('dateFrom').value = monthAgo.toISOString().split('T')[0];
+
+function setPeriod(p, btn) {
+  currentPeriod = p;
+  document.querySelectorAll('.period-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadReports();
+}
+
+function fmtDate(str) {
+  if (!str) return '—';
+  try { return new Date(str).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }); }
+  catch { return str; }
+}
+
+function getScoreColor(score) {
+  if (score >= 95) return 'var(--green)';
+  if (score >= 85) return 'var(--amber)';
+  return 'var(--red)';
+}
+
+async function loadReports() {
+  // Try backend first
+  const type   = currentPeriod === 'all' ? null : currentPeriod;
+  const result = await ReportsAPI.list(type);
+
+  let reports = [];
+  if (result && result.reports && result.reports.length > 0) {
+    reports = result.reports;
+  }
+
+  // Also check localStorage for session-generated reports
+  try {
+    const localReports = JSON.parse(localStorage.getItem('visionz_reports') || '[]');
+    // Merge: local reports first (most recent), then backend reports
+    const merged = [...localReports];
+    reports.forEach(r => {
+      if (!merged.find(lr => lr.report_name === r.report_name)) merged.push(r);
+    });
+    reports = merged;
+  } catch {}
+
+  // Filter by type
+  if (currentPeriod !== 'all') {
+    reports = reports.filter(r => r.report_type === currentPeriod);
+  }
+
+  allReports = reports;
+  renderTable(reports);
+}
+
+function renderTable(data) {
+  const empty = document.getElementById('emptyState');
+  const wrap  = document.getElementById('tableWrap');
+  const dlAll = document.getElementById('dlAllBtn');
+
+  if (!data || data.length === 0) {
+    empty.style.display = 'flex';
+    wrap.style.display  = 'none';
+    dlAll.style.display = 'none';
+    document.getElementById('sumScanned').textContent = '0';
+    document.getElementById('sumDefects').textContent  = '0';
+    document.getElementById('sumPass').textContent     = '—';
+    document.getElementById('sumReports').textContent  = '0';
+    return;
+  }
+
+  empty.style.display = 'none';
+  wrap.style.display  = 'block';
+  dlAll.style.display = 'flex';
+
+  // Summary
+  const totScanned = data.reduce((a,r) => a + (r.total_scanned||0), 0);
+  const totDefects = data.reduce((a,r) => a + (r.total_defects||0), 0);
+  const avgScore   = Math.round(data.reduce((a,r) => a + (r.quality_score||0), 0) / data.length);
+  const passRate   = totScanned > 0 ? Math.round(((totScanned-totDefects)/totScanned)*100) : 0;
+
+  document.getElementById('sumScanned').textContent = totScanned.toLocaleString();
+  document.getElementById('sumDefects').textContent  = totDefects.toLocaleString();
+  document.getElementById('sumPass').textContent     = passRate + '%';
+  document.getElementById('sumReports').textContent  = data.length;
+
+  // Rows
+  const rows = data.map((r, i) => {
+    const typeClass = r.report_type === 'daily' ? 'badge-daily' : r.report_type === 'weekly' ? 'badge-weekly' : 'badge-monthly';
+    const scoreColor = getScoreColor(r.quality_score || 0);
+    const passR = r.total_scanned > 0 ? Math.round(((r.total_scanned - r.total_defects) / r.total_scanned) * 100) : 100;
+    return `<tr>
+      <td><strong>${r.report_name}</strong></td>
+      <td><span class="type-badge ${typeClass}">${(r.report_type||'').toUpperCase()}</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--dim);">${fmtDate(r.period_start)} – ${fmtDate(r.period_end)}</td>
+      <td style="font-family:'DM Mono',monospace;">${(r.total_scanned||0).toLocaleString()}</td>
+      <td style="font-family:'DM Mono',monospace;color:${r.total_defects > 0 ? 'var(--red)':'var(--green)'};">${(r.total_defects||0).toLocaleString()}</td>
+      <td><span class="score-pill" style="color:${scoreColor};">${r.quality_score||0}/100</span></td>
+      <td style="font-family:'DM Mono',monospace;font-size:0.72rem;color:var(--dim);">${fmtDate(r.created_at || new Date().toISOString())}</td>
+      <td><button class="btn-download" onclick="downloadReport(${i})"><i class="bi bi-download"></i> PDF</button></td>
+    </tr>`;
+  }).join('');
+  document.getElementById('repTableBody').innerHTML = rows;
+}
+
+function showToast(msg) {
+  document.getElementById('toastText').textContent = msg;
+  const t = document.getElementById('toastMsg');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function downloadReport(idx) {
+  const r   = allReports[idx];
+  if (!r) return;
+  const btns = document.querySelectorAll('.btn-download');
+  const btn  = btns[idx];
+  if (btn) { btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating...'; btn.classList.add('downloading'); }
+
+  if (r.id) await ReportsAPI.markDownload(r.id).catch(()=>{});
+
+  setTimeout(() => {
+    const doc    = new jsPDF();
+    const pageW  = doc.internal.pageSize.getWidth();
+    const pageH  = doc.internal.pageSize.getHeight();
+    const name   = r.report_name || 'VISIONZ Report';
+    const period = `${fmtDate(r.period_start)} – ${fmtDate(r.period_end)}`;
+    const scanned = (r.total_scanned || 0).toLocaleString();
+    const defects = (r.total_defects || 0).toLocaleString();
+    const score   = r.quality_score || 0;
+    const passR   = r.total_scanned > 0 ? (((r.total_scanned-r.total_defects)/r.total_scanned)*100).toFixed(1)+'%' : '100%';
+    const approved = ((r.total_scanned||0)-(r.total_defects||0)).toLocaleString();
+
+    // Header
+    doc.setFillColor(2,6,23); doc.rect(0,0,pageW,45,'F');
+    doc.setTextColor(56,189,248); doc.setFontSize(24); doc.setFont('helvetica','bold');
+    doc.text('VISIONZ',14,20);
+    doc.setFontSize(9); doc.setTextColor(100,116,139); doc.setFont('helvetica','normal');
+    doc.text('AI-Powered FMCG Quality Control System',14,30);
+    doc.setFontSize(12); doc.setTextColor(226,232,240); doc.setFont('helvetica','bold');
+    doc.text(name, 14, 40);
+
+    doc.setTextColor(100,116,139); doc.setFontSize(9); doc.setFont('helvetica','normal');
+    doc.text(`Period: ${period}`, 14, 56);
+    doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 64);
+
+    doc.setDrawColor(56,189,248); doc.setLineWidth(0.5); doc.line(14, 70, pageW-14, 70);
+
+    doc.setTextColor(226,232,240); doc.setFontSize(13); doc.setFont('helvetica','bold');
+    doc.text('QUALITY SUMMARY', 14, 82);
+
+    const stats = [
+      ['Total Scanned',    scanned],
+      ['Defects Detected', defects],
+      ['Products Approved',approved],
+      ['Pass Rate',        passR],
+      ['Quality Score',    `${score}/100`],
+    ];
+    doc.setFontSize(10); doc.setFont('helvetica','normal');
+    stats.forEach(([lbl, val], i) => {
+      const y = 94 + i*11;
+      doc.setTextColor(100,116,139); doc.text(lbl+':', 14, y);
+      doc.setTextColor(226,232,240); doc.setFont('helvetica','bold'); doc.text(val, 110, y);
+      doc.setFont('helvetica','normal');
+    });
+
+    doc.setDrawColor(30,41,59); doc.line(14, 155, pageW-14, 155);
+    doc.setTextColor(226,232,240); doc.setFontSize(13); doc.setFont('helvetica','bold');
+    doc.text('DEFECT BREAKDOWN', 14, 167);
+
+    const catData = r.catCounts || {};
+    const catList = Object.entries(catData).filter(([,v])=>v>0);
+    if (catList.length > 0) {
+      doc.setFontSize(10); doc.setFont('helvetica','normal');
+      catList.forEach(([cat, cnt], i) => {
+        const y = 178 + i*11;
+        const rate = r.total_scanned > 0 ? ((cnt/r.total_scanned)*100).toFixed(2)+'%' : '—';
+        doc.setTextColor(100,116,139); doc.text(cat+':', 14, y);
+        doc.setTextColor(226,232,240); doc.setFont('helvetica','bold');
+        doc.text(`${cnt} defects (${rate})`, 110, y);
+        doc.setFont('helvetica','normal');
+      });
+    } else {
+      doc.setFontSize(10); doc.setTextColor(100,116,139); doc.text('No defect category data available.', 14, 178);
+    }
+
+    // Footer
+    doc.setFillColor(15,23,42); doc.rect(0, pageH-18, pageW, 18, 'F');
+    doc.setTextColor(100,116,139); doc.setFontSize(8);
+    doc.text('VISIONZ QC System — Confidential Report', 14, pageH-6);
+    doc.text('Page 1 of 1', pageW-30, pageH-6);
+
+    doc.save(name.replace(/[^a-z0-9]/gi,'_')+'.pdf');
+
+    if (btn) { btn.innerHTML = '<i class="bi bi-download"></i> PDF'; btn.classList.remove('downloading'); }
+    showToast(`"${name}" downloaded!`);
+  }, 600);
+}
+
+function downloadAll() {
+  allReports.forEach((_, i) => setTimeout(() => downloadReport(i), i * 800));
+}
+
+// ── INIT ──
+loadReports();
+</script>
+</body>
+</html>

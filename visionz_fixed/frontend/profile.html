@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VISIONZ — Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+:root{--bg:#020617;--surface:#0F172A;--card:#111827;--hover:#1E293B;--accent:#38bdf8;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;--purple:#a78bfa;--text:#e2e8f0;--dim:#64748b;--border:rgba(56,189,248,0.1);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);min-height:100vh;}
+.page-wrap{padding:1.5rem;max-width:900px;margin:0 auto;}
+
+/* AVATAR CARD */
+.avatar-card{
+  background:var(--card);border:1px solid var(--border);border-radius:20px;
+  padding:2rem;text-align:center;position:relative;overflow:hidden;
+  margin-bottom:1.25rem;
+}
+.avatar-card::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(56,189,248,0.06),transparent 70%);
+}
+.avatar-card::after{
+  content:'';position:absolute;bottom:-60px;left:-60px;
+  width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(167,139,250,0.06),transparent 70%);
+}
+.big-avatar{
+  width:88px;height:88px;border-radius:22px;
+  background:linear-gradient(135deg,#3b82f6,#8b5cf6);
+  display:flex;align-items:center;justify-content:center;
+  font-size:2rem;font-weight:800;color:#fff;
+  margin:0 auto 1rem;
+  box-shadow:0 0 0 4px rgba(56,189,248,0.15),0 0 30px rgba(56,189,248,0.1);
+  position:relative;z-index:1;
+}
+.profile-name{font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:700;color:#fff;letter-spacing:2px;position:relative;z-index:1;}
+.profile-email{font-size:0.82rem;color:var(--dim);margin-top:4px;position:relative;z-index:1;font-family:'DM Mono',monospace;}
+.role-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 16px;border-radius:20px;font-size:0.78rem;font-weight:700;
+  margin-top:0.75rem;position:relative;z-index:1;
+}
+.role-badge.admin{background:rgba(56,189,248,0.1);border:1px solid rgba(56,189,248,0.3);color:var(--accent);}
+.role-badge.manager{background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.3);color:var(--purple);}
+.role-badge.operator{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.3);color:var(--green);}
+
+/* STAT CARDS */
+.profile-stat{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:1.25rem;text-align:center;transition:transform 0.2s;
+}
+.profile-stat:hover{transform:translateY(-2px);}
+.ps-icon{font-size:2rem;margin-bottom:0.5rem;display:block;}
+.ps-num{font-family:'Orbitron',sans-serif;font-size:1.8rem;font-weight:700;line-height:1;}
+.ps-label{font-size:0.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin-top:4px;font-weight:600;}
+
+/* INFO SECTIONS */
+.info-section{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:1rem;}
+.is-header{padding:0.9rem 1.25rem;border-bottom:1px solid var(--border);font-size:0.72rem;font-weight:700;color:var(--dim);letter-spacing:3px;text-transform:uppercase;font-family:'DM Mono',monospace;display:flex;align-items:center;gap:8px;}
+.is-row{display:flex;align-items:center;justify-content:space-between;padding:0.85rem 1.25rem;border-bottom:1px solid var(--border);}
+.is-row:last-child{border-bottom:none;}
+.is-key{font-size:0.82rem;color:var(--dim);font-weight:500;}
+.is-val{font-size:0.82rem;font-weight:700;color:var(--text);font-family:'DM Mono',monospace;text-align:right;}
+.is-val.green{color:var(--green);}
+.is-val.accent{color:var(--accent);}
+.is-val.amber{color:var(--amber);}
+
+/* SESSION TIMER */
+.session-timer{
+  background:linear-gradient(135deg,rgba(56,189,248,0.08),rgba(167,139,250,0.06));
+  border:1px solid rgba(56,189,248,0.15);border-radius:16px;
+  padding:1.25rem;margin-bottom:1.25rem;text-align:center;
+}
+.st-label{font-size:0.65rem;font-family:'DM Mono',monospace;letter-spacing:3px;color:var(--dim);text-transform:uppercase;margin-bottom:0.5rem;}
+.st-time{font-family:'Orbitron',monospace;font-size:2.2rem;font-weight:700;color:var(--accent);letter-spacing:4px;}
+.st-sub{font-size:0.7rem;color:var(--dim);margin-top:4px;}
+
+/* ACTIVITY LOG */
+.activity-row{display:flex;align-items:flex-start;gap:10px;padding:0.75rem 1.25rem;border-bottom:1px solid var(--border);}
+.activity-row:last-child{border-bottom:none;}
+.act-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:0.85rem;flex-shrink:0;margin-top:2px;}
+.act-text{font-size:0.8rem;color:var(--text);flex:1;}
+.act-time{font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--dim);white-space:nowrap;}
+
+/* LOGOUT BTN */
+.btn-logout{
+  width:100%;padding:0.85rem;
+  background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.25);
+  color:var(--red);font-family:'Orbitron',sans-serif;font-size:0.78rem;
+  font-weight:700;letter-spacing:2px;border-radius:12px;cursor:pointer;
+  transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-top:1.25rem;
+}
+.btn-logout:hover{background:rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.5);box-shadow:0 0 20px rgba(239,68,68,0.1);}
+</style>
+</head>
+<body>
+<script src="js/navbar.js"></script>
+
+<div class="page-wrap">
+
+  <!-- AVATAR CARD -->
+  <div class="avatar-card">
+    <div class="big-avatar" id="profileAvatar">AK</div>
+    <div class="profile-name" id="profileName">ARUN KUMAR</div>
+    <div class="profile-email" id="profileEmail">arun@visionz.com</div>
+    <div class="d-flex justify-content-center">
+      <div class="role-badge admin" id="profileRoleBadge">👑 ADMIN</div>
+    </div>
+  </div>
+
+  <!-- SESSION TIMER -->
+  <div class="session-timer">
+    <div class="st-label">Current Session Duration</div>
+    <div class="st-time" id="sessionTimer">00:00:00</div>
+    <div class="st-sub">Time logged in this session</div>
+  </div>
+
+  <!-- PROFILE STATS -->
+  <div class="row g-3 mb-3">
+    <div class="col-4">
+      <div class="profile-stat">
+        <span class="ps-icon">📋</span>
+        <div class="ps-num" style="color:var(--accent);" id="statReports">0</div>
+        <div class="ps-label">Reports Downloaded</div>
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="profile-stat">
+        <span class="ps-icon">🔍</span>
+        <div class="ps-num" style="color:var(--green);" id="statSessions">1</div>
+        <div class="ps-label">Sessions</div>
+      </div>
+    </div>
+    <div class="col-4">
+      <div class="profile-stat">
+        <span class="ps-icon">🏭</span>
+        <div class="ps-num" style="color:var(--amber);" id="statLines">4</div>
+        <div class="ps-label">Lines Monitored</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-1">
+    <!-- ACCOUNT INFO -->
+    <div class="col-12 col-md-6">
+      <div class="info-section">
+        <div class="is-header"><i class="bi bi-person-circle"></i> Account Information</div>
+        <div class="is-row"><span class="is-key">Full Name</span><span class="is-val accent" id="infoName">Arun Kumar</span></div>
+        <div class="is-row"><span class="is-key">Email</span><span class="is-val" id="infoEmail">arun@visionz.com</span></div>
+        <div class="is-row"><span class="is-key">Role</span><span class="is-val accent" id="infoRole">ADMIN</span></div>
+        <div class="is-row"><span class="is-key">Access Level</span><span class="is-val green" id="infoAccess">Full Access</span></div>
+      </div>
+    </div>
+
+    <!-- SESSION INFO -->
+    <div class="col-12 col-md-6">
+      <div class="info-section">
+        <div class="is-header"><i class="bi bi-clock-history"></i> Session Information</div>
+        <div class="is-row"><span class="is-key">Login Time</span><span class="is-val accent" id="infoLoginTime">—</span></div>
+        <div class="is-row"><span class="is-key">Login Date</span><span class="is-val" id="infoLoginDate">—</span></div>
+        <div class="is-row"><span class="is-key">Reports Downloaded</span><span class="is-val amber" id="infoReports">0</span></div>
+        <div class="is-row"><span class="is-key">Status</span><span class="is-val green">● ACTIVE</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RECENT ACTIVITY -->
+  <div class="info-section mt-3">
+    <div class="is-header"><i class="bi bi-activity"></i> Recent Activity</div>
+    <div class="activity-row">
+      <div class="act-icon" style="background:rgba(34,197,94,0.1);color:var(--green);">🔐</div>
+      <div class="act-text">Logged into VISIONZ system</div>
+      <div class="act-time" id="loginActivityTime">—</div>
+    </div>
+    <div class="activity-row">
+      <div class="act-icon" style="background:rgba(56,189,248,0.1);color:var(--accent);">📊</div>
+      <div class="act-text">Viewed Analytics Dashboard</div>
+      <div class="act-time">Just now</div>
+    </div>
+    <div class="activity-row">
+      <div class="act-icon" style="background:rgba(245,158,11,0.1);color:var(--amber);">📷</div>
+      <div class="act-text">Monitored Line 01 — Biscuit Packs</div>
+      <div class="act-time">2 min ago</div>
+    </div>
+    <div class="activity-row">
+      <div class="act-icon" style="background:rgba(167,139,250,0.1);color:var(--purple);">📋</div>
+      <div class="act-text">Downloaded <span id="actReportCount">0</span> reports this session</div>
+      <div class="act-time">This session</div>
+    </div>
+  </div>
+
+  <!-- LOGOUT -->
+  <button class="btn-logout" onclick="logout()">
+    <i class="bi bi-box-arrow-right"></i>
+    SIGN OUT
+  </button>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/api.js"></script>
+<script>
+Auth.guard();
+
+const roleIcons   = { admin:'👑', manager:'📊', operator:'🏭' };
+const accessLevel = { admin:'Full Access', manager:'Reports + Analytics', operator:'Monitor Only' };
+
+function populateProfile(user, profile) {
+  document.getElementById('profileAvatar').textContent    = user.avatar || 'U';
+  document.getElementById('profileName').textContent      = (user.name||'').toUpperCase();
+  document.getElementById('profileEmail').textContent     = user.email || '';
+  document.getElementById('infoName').textContent         = user.name || '';
+  document.getElementById('infoEmail').textContent        = user.email || '';
+  document.getElementById('infoRole').textContent         = (user.role||'').toUpperCase();
+  document.getElementById('infoAccess').textContent       = accessLevel[user.role] || 'Monitor Only';
+
+  const dlCount  = profile ? profile.reports_downloaded : (user.reportsDownloaded || 0);
+  const sessions = profile ? profile.session_count : 1;
+  document.getElementById('statReports').textContent    = dlCount;
+  document.getElementById('infoReports').textContent    = dlCount;
+  document.getElementById('actReportCount').textContent = dlCount;
+  if (document.getElementById('statSessions'))
+    document.getElementById('statSessions').textContent = sessions;
+
+  const badge = document.getElementById('profileRoleBadge');
+  badge.className   = `role-badge ${user.role}`;
+  badge.textContent = `${roleIcons[user.role]||''} ${(user.role||'').toUpperCase()}`;
+
+  const loginTime = (profile && profile.login_time) ? profile.login_time : user.loginTime;
+  if (loginTime) {
+    const d = new Date(loginTime);
+    document.getElementById('infoLoginTime').textContent     = d.toLocaleTimeString();
+    document.getElementById('infoLoginDate').textContent     = d.toLocaleDateString('en-IN',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+    document.getElementById('loginActivityTime').textContent = d.toLocaleTimeString();
+  }
+}
+
+function startTimer() {
+  const u = Auth.getUser();
+  const start = u && u.sessionStart ? u.sessionStart : Date.now();
+  setInterval(() => {
+    const e = Math.floor((Date.now()-start)/1000);
+    const h = String(Math.floor(e/3600)).padStart(2,'0');
+    const m = String(Math.floor((e%3600)/60)).padStart(2,'0');
+    const s = String(e%60).padStart(2,'0');
+    document.getElementById('sessionTimer').textContent = `${h}:${m}:${s}`;
+  }, 1000);
+}
+
+async function logout() {
+  if (!confirm('Are you sure you want to sign out?')) return;
+  const token = Auth.getToken();
+  if (token) await AuthAPI.logout(token).catch(()=>{});
+  Auth.clearSession();
+  window.location.href = 'index.html';
+}
+
+async function init() {
+  const user = Auth.getUser();
+  if (!user) return;
+  populateProfile(user, null);
+  startTimer();
+  const profile = await UserAPI.getProfile();
+  if (profile) populateProfile(user, profile);
+}
+
+init();
+</script>
+</body>
+</html>

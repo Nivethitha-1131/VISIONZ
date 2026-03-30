@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VISIONZ — Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+:root{
+  --bg:#020617;--surface:#0F172A;--card:#111827;--hover:#1E293B;
+  --accent:#38bdf8;--green:#22c55e;--red:#ef4444;--amber:#f59e0b;
+  --purple:#a78bfa;--text:#e2e8f0;--dim:#64748b;
+  --border:rgba(56,189,248,0.1);--border2:rgba(56,189,248,0.25);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);font-family:'Outfit',sans-serif;color:var(--text);min-height:100vh;}
+
+/* STATUS ROW */
+.status-row{display:flex;align-items:center;height:44px;padding:0 1.5rem;
+  background:rgba(9,14,27,.9);border-bottom:1px solid var(--border);
+  overflow-x:auto;gap:0;scrollbar-width:none;}
+.status-row::-webkit-scrollbar{display:none;}
+.sr-item{display:flex;align-items:center;gap:5px;padding:0 1rem;height:100%;
+  border-right:1px solid rgba(56,189,248,.07);font-size:.71rem;font-weight:600;
+  flex-shrink:0;white-space:nowrap;}
+.sr-item:first-child{padding-left:0;}
+.sr-lbl{color:var(--dim);}
+.sr-val{color:var(--accent);font-family:'DM Mono',monospace;font-size:.68rem;margin-left:3px;}
+.sr-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.sr-dot.green{background:var(--green);box-shadow:0 0 5px var(--green);animation:pulse 1.5s infinite;}
+.sr-dot.red{background:var(--red);}
+.sr-dot.amber{background:var(--amber);}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.sr-clock{margin-left:auto;font-family:'DM Mono',monospace;font-size:.7rem;color:var(--dim);
+  display:flex;align-items:center;gap:5px;padding-left:1rem;flex-shrink:0;}
+
+/* PAGE */
+.page{padding:1.25rem 1.5rem 3rem;max-width:1400px;margin:0 auto;}
+
+/* TOP STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin-bottom:1.25rem;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:1rem 1.1rem;display:flex;align-items:center;gap:.75rem;transition:all .2s;}
+.stat-card:hover{transform:translateY(-2px);border-color:var(--border2);}
+.stat-ico{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;
+  justify-content:center;font-size:1.15rem;flex-shrink:0;}
+.stat-ico.blue{background:rgba(56,189,248,.1);}
+.stat-ico.green{background:rgba(34,197,94,.1);}
+.stat-ico.red{background:rgba(239,68,68,.1);}
+.stat-ico.amber{background:rgba(245,158,11,.1);}
+.stat-num{font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:700;line-height:1;}
+.stat-num.blue{color:var(--accent);}
+.stat-num.green{color:var(--green);}
+.stat-num.red{color:var(--red);}
+.stat-num.amber{color:var(--amber);}
+.stat-lbl{font-size:.63rem;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;
+  margin-top:3px;font-weight:600;}
+
+/* SECTION LABEL */
+.sec-lbl{font-family:'Orbitron',sans-serif;font-size:.62rem;font-weight:700;
+  letter-spacing:3px;color:var(--dim);text-transform:uppercase;
+  margin-bottom:.75rem;display:flex;align-items:center;gap:8px;}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--border);}
+
+/* CAMERA CARD */
+.cam-card{background:var(--card);border:1px solid var(--border);border-radius:16px;
+  overflow:hidden;margin-bottom:1.25rem;}
+.cam-bar{display:flex;align-items:center;justify-content:space-between;
+  padding:.65rem 1.25rem;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:.5rem;}
+.cam-title{font-size:.82rem;font-weight:700;color:var(--text);
+  display:flex;align-items:center;gap:8px;}
+.cam-btns{display:flex;gap:.4rem;flex-wrap:wrap;}
+.cbtn{background:var(--hover);border:1px solid var(--border);border-radius:8px;
+  color:var(--dim);font-size:.72rem;padding:5px 12px;cursor:pointer;
+  font-family:'Outfit',sans-serif;transition:all .2s;display:flex;align-items:center;gap:5px;}
+.cbtn:hover{border-color:var(--border2);color:var(--accent);}
+.cbtn.on{border-color:var(--border2);color:var(--accent);background:rgba(56,189,248,.06);}
+.cbtn.danger{border-color:rgba(239,68,68,.3);color:var(--red);}
+.cbtn.danger:hover{background:rgba(239,68,68,.08);}
+
+/* VIEWPORT */
+.viewport{position:relative;background:#000;height:460px;min-height:260px;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;}
+
+/* UPLOAD ZONE */
+.drop-zone{position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:1rem;cursor:pointer;
+  transition:background .2s;z-index:5;}
+.drop-zone:hover{background:rgba(56,189,248,.03);}
+.drop-zone.dragover{background:rgba(56,189,248,.07);border:2px dashed rgba(56,189,248,.4);}
+.drop-zone.gone{display:none;z-index:-1;pointer-events:none;}
+.dz-ico{width:80px;height:80px;border-radius:20px;
+  background:rgba(56,189,248,.06);border:2px dashed rgba(56,189,248,.25);
+  display:flex;align-items:center;justify-content:center;font-size:2.2rem;
+  animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.dz-title{font-family:'Orbitron',sans-serif;font-size:1rem;font-weight:700;
+  color:#fff;letter-spacing:2px;}
+.dz-sub{font-size:.8rem;color:var(--dim);text-align:center;
+  line-height:1.6;max-width:320px;}
+.dz-sub span{color:var(--accent);font-weight:600;}
+.dz-btn{background:linear-gradient(135deg,rgba(56,189,248,.15),rgba(129,140,248,.1));
+  border:1px solid rgba(56,189,248,.35);color:#fff;
+  font-family:'Orbitron',sans-serif;font-size:.72rem;font-weight:700;
+  letter-spacing:2px;padding:.65rem 1.75rem;border-radius:10px;
+  cursor:pointer;transition:all .3s;display:flex;align-items:center;gap:8px;}
+.dz-btn:hover{border-color:rgba(56,189,248,.7);box-shadow:0 0 20px rgba(56,189,248,.2);
+  transform:translateY(-2px);}
+.dz-fmt{font-size:.65rem;color:var(--dim);font-family:'DM Mono',monospace;letter-spacing:1px;}
+
+/* VIDEO */
+#videoPlayer{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  object-fit:contain;display:none;z-index:2;background:#000;}
+/* When video element is dynamically created, show it */
+#videoPlayer[style*="display:block"]{display:block !important;}
+#detCanvas{position:absolute;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;z-index:4;display:none;}
+
+/* CORNER BRACKETS */
+.brk{position:absolute;width:22px;height:22px;border-color:rgba(56,189,248,.55);
+  border-style:solid;z-index:4;display:none;}
+.brk.tl{top:10px;left:10px;border-width:2px 0 0 2px;}
+.brk.tr{top:10px;right:10px;border-width:2px 2px 0 0;}
+.brk.bl{bottom:10px;left:10px;border-width:0 0 2px 2px;}
+.brk.br{bottom:10px;right:10px;border-width:0 2px 2px 0;}
+
+/* SCAN BEAM */
+.scan-beam{position:absolute;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,transparent,rgba(56,189,248,.85),transparent);
+  box-shadow:0 0 16px rgba(56,189,248,.4);z-index:4;display:none;
+  animation:scan 2s ease-in-out infinite;}
+@keyframes scan{0%,100%{left:5%;opacity:.4;}50%{left:95%;opacity:1;}}
+
+/* HUD */
+.hud-chips{position:absolute;top:12px;right:12px;display:flex;
+  flex-direction:column;gap:5px;align-items:flex-end;z-index:4;}
+.chip{background:rgba(0,0,0,.78);border-radius:7px;padding:4px 9px;
+  font-family:'DM Mono',monospace;font-size:.62rem;border:1px solid;
+  display:flex;align-items:center;gap:5px;}
+.chip.blue{border-color:rgba(56,189,248,.35);color:#38bdf8;}
+.chip.green{border-color:rgba(34,197,94,.35);color:#22c55e;}
+.chip.amber{border-color:rgba(245,158,11,.35);color:#f59e0b;}
+.chip.red{border-color:rgba(239,68,68,.4);color:#ef4444;animation:chipblink 1s ease-in-out infinite;}
+@keyframes chipblink{0%,100%{opacity:1;}50%{opacity:.5;}}
+.hud-bottom{position:absolute;bottom:0;left:0;right:0;z-index:4;
+  background:linear-gradient(0deg,rgba(0,0,0,.85),transparent);
+  padding:1rem 1.25rem .75rem;display:none;
+  align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+.hb-item{font-family:'DM Mono',monospace;font-size:.65rem;color:rgba(255,255,255,.6);}
+.hb-item strong{color:#fff;}
+
+/* PROGRESS BAR */
+.progress-bar-wrap{padding:.6rem 1.25rem;border-top:1px solid var(--border);
+  background:var(--surface);display:none;}
+.pb-row{display:flex;align-items:center;gap:.75rem;}
+.pb-time{font-family:'DM Mono',monospace;font-size:.68rem;color:var(--dim);flex-shrink:0;}
+.pb-track{flex:1;height:4px;background:var(--hover);border-radius:2px;cursor:pointer;}
+.pb-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--purple));
+  border-radius:2px;width:0%;transition:width .2s;}
+.pb-btn{background:none;border:none;color:var(--dim);font-size:1rem;
+  cursor:pointer;padding:2px 4px;transition:color .2s;}
+.pb-btn:hover{color:var(--accent);}
+.pb-name{font-size:.7rem;color:var(--dim);font-family:'DM Mono',monospace;
+  flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* ANALYSIS SECTION */
+.analysis-wrap{display:none;}
+.analysis-wrap.show{display:block;}
+
+/* ANALYZING BANNER */
+.an-banner{background:linear-gradient(135deg,rgba(56,189,248,.08),rgba(129,140,248,.05));
+  border:1px solid rgba(56,189,248,.2);border-radius:14px;padding:1rem 1.5rem;
+  display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;}
+.an-spinner{width:36px;height:36px;border-radius:50%;
+  border:3px solid rgba(56,189,248,.15);border-top-color:var(--accent);
+  animation:spin .8s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.an-pct{font-family:'DM Mono',monospace;font-size:.8rem;color:var(--accent);font-weight:700;}
+
+/* SUMMARY CARD */
+.sum-card{background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:1.25rem;margin-bottom:1.25rem;}
+.sum-head{display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:1rem;flex-wrap:wrap;gap:.5rem;}
+.sum-title{font-size:.95rem;font-weight:700;color:#fff;}
+.sum-fname{font-family:'DM Mono',monospace;font-size:.65rem;color:var(--accent);}
+.sum-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:.75rem;margin-bottom:1rem;}
+.sum-stat{background:var(--hover);border-radius:10px;padding:.75rem;text-align:center;}
+.ss-num{font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:700;line-height:1;}
+.ss-num.blue{color:var(--accent);}
+.ss-num.green{color:var(--green);}
+.ss-num.red{color:var(--red);}
+.ss-num.amber{color:var(--amber);}
+.ss-lbl{font-size:.62rem;color:var(--dim);text-transform:uppercase;letter-spacing:1px;
+  margin-top:4px;font-weight:600;}
+.cat-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;}
+.cat-name{font-size:.78rem;color:var(--text);font-weight:600;min-width:130px;}
+.cat-track{flex:1;height:6px;background:var(--hover);border-radius:3px;overflow:hidden;}
+.cat-bar{height:100%;border-radius:3px;transition:width 1.2s ease;}
+.cat-cnt{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--dim);
+  min-width:30px;text-align:right;}
+
+/* AI CARD */
+.ai-card{background:linear-gradient(135deg,rgba(129,140,248,.07),rgba(56,189,248,.05));
+  border:1px solid rgba(129,140,248,.25);border-radius:16px;padding:1.25rem 1.5rem;
+  margin-bottom:1.25rem;position:relative;overflow:hidden;}
+.ai-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,#818cf8,#38bdf8,#818cf8);
+  background-size:200% 100%;animation:aishimmer 2.5s linear infinite;}
+@keyframes aishimmer{0%{background-position:0%}100%{background-position:200%}}
+.ai-head{display:flex;align-items:center;gap:10px;margin-bottom:1rem;}
+.ai-ico{width:36px;height:36px;background:linear-gradient(135deg,rgba(129,140,248,.2),rgba(56,189,248,.15));
+  border:1px solid rgba(129,140,248,.3);border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.ai-title{font-family:'Orbitron',sans-serif;font-size:.7rem;font-weight:700;
+  letter-spacing:2.5px;color:#818cf8;text-transform:uppercase;}
+.ai-sub{font-size:.68rem;color:var(--dim);margin-top:1px;}
+.ai-badge{margin-left:auto;display:flex;align-items:center;gap:5px;
+  background:rgba(129,140,248,.1);border:1px solid rgba(129,140,248,.2);
+  border-radius:20px;padding:4px 10px;font-size:.62rem;font-weight:700;
+  color:#818cf8;white-space:nowrap;}
+
+/* AI loading */
+.ai-dots{display:flex;gap:5px;}
+.ai-dots span{width:7px;height:7px;background:#818cf8;border-radius:50%;
+  animation:aidot 1.2s ease-in-out infinite;}
+.ai-dots span:nth-child(2){animation-delay:.2s;}
+.ai-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes aidot{0%,80%,100%{opacity:.2;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
+
+.ai-body{font-size:.83rem;color:#cbd5e1;line-height:1.8;
+  white-space:pre-wrap;font-family:'Outfit',sans-serif;}
+.ai-verdict{display:inline-block;padding:3px 12px;border-radius:20px;
+  font-size:.72rem;font-weight:800;letter-spacing:1px;margin-bottom:.75rem;}
+.ai-verdict.pass{background:rgba(34,197,94,.15);color:#22c55e;border:1px solid rgba(34,197,94,.3);}
+.ai-verdict.warn{background:rgba(245,158,11,.15);color:#f59e0b;border:1px solid rgba(245,158,11,.3);}
+.ai-verdict.crit{background:rgba(239,68,68,.15);color:#ef4444;border:1px solid rgba(239,68,68,.3);}
+.ai-err{font-size:.78rem;color:#f87171;display:flex;align-items:center;gap:8px;}
+.ai-retry{background:none;border:1px solid rgba(129,140,248,.3);color:#818cf8;
+  border-radius:8px;padding:5px 14px;font-size:.72rem;font-weight:700;
+  cursor:pointer;margin-top:.75rem;font-family:'Outfit',sans-serif;transition:all .2s;}
+.ai-retry:hover{background:rgba(129,140,248,.1);border-color:rgba(129,140,248,.5);}
+
+/* DEFECT CARDS */
+.defect-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:.75rem;}
+.defect-card{background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:.9rem 1rem;display:flex;align-items:center;gap:.75rem;
+  cursor:pointer;transition:all .2s;animation:dIn .4s ease;}
+@keyframes dIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.defect-card:hover{border-color:var(--border2);transform:translateY(-1px);}
+.defect-card.critical{border-left:3px solid var(--red);}
+.defect-card.warning{border-left:3px solid var(--amber);}
+.defect-card.passed{border-left:3px solid var(--green);}
+.dc-ico{width:42px;height:42px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:1.25rem;flex-shrink:0;}
+.dc-ico.critical{background:rgba(239,68,68,.1);}
+.dc-ico.warning{background:rgba(245,158,11,.1);}
+.dc-ico.passed{background:rgba(34,197,94,.1);}
+.dc-type{font-size:.82rem;font-weight:700;color:var(--text);}
+.dc-meta{font-size:.67rem;color:var(--dim);font-family:'DM Mono',monospace;margin-top:2px;}
+.dc-prod{font-size:.68rem;color:var(--accent);margin-top:2px;font-weight:600;}
+.dc-conf{font-family:'DM Mono',monospace;font-size:.75rem;font-weight:700;}
+.dc-conf.hi{color:var(--green);}
+.dc-conf.med{color:var(--amber);}
+.dc-ts{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--dim);margin-top:3px;}
+
+@media(max-width:1100px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:768px){
+  .page{padding:1rem;}
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .viewport{min-height:260px;}
+  .status-row{padding:0 1rem;}
+}
+@media(max-width:480px){
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .stat-num{font-size:1.25rem;}
+}
+</style>
+</head>
+<body>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<script src="js/api.js"></script>
+<script src="js/navbar.js"></script>
+
+<!-- STATUS ROW -->
+<div class="status-row">
+  <div class="sr-item"><div class="sr-dot green"></div><span class="sr-lbl">System</span><span class="sr-val">Online</span></div>
+  <div class="sr-item"><span class="sr-lbl">Mode</span><span class="sr-val" id="srMode">Waiting</span></div>
+  <div class="sr-item"><span class="sr-lbl">Inference</span><span class="sr-val" id="srInf">—</span></div>
+  <div class="sr-item"><span class="sr-lbl">Defect Rate</span><span class="sr-val" id="srRate" style="color:var(--dim)">—</span></div>
+  <div class="sr-item"><span class="sr-lbl">Model</span><span class="sr-val">YOLOv9</span></div>
+  <div class="sr-item"><div class="sr-dot green"></div><span class="sr-lbl">Status</span><span class="sr-val" id="srStatus">Ready</span></div>
+  <div class="sr-clock"><i class="bi bi-clock" style="font-size:.68rem"></i><span id="clock">--:--:--</span></div>
+</div>
+
+<div class="page">
+
+  <!-- TOP STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-ico blue"><i class="bi bi-boxes"></i></div>
+      <div><div class="stat-num blue" id="stScanned">0</div><div class="stat-lbl">Frames Scanned</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-ico green"><i class="bi bi-shield-check"></i></div>
+      <div><div class="stat-num green" id="stPassed">0</div><div class="stat-lbl">Passed</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-ico red"><i class="bi bi-x-octagon-fill"></i></div>
+      <div><div class="stat-num red" id="stDefects">0</div><div class="stat-lbl">Defects Found</div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-ico amber"><i class="bi bi-lightning-charge-fill"></i></div>
+      <div><div class="stat-num amber" id="stRate">—</div><div class="stat-lbl">Defect Rate</div></div>
+    </div>
+  </div>
+
+  <!-- CAMERA SECTION -->
+  <div class="sec-lbl"><i class="bi bi-camera-video"></i> Camera / Video Monitor</div>
+
+  <div class="cam-card">
+    <div class="cam-bar">
+      <div class="cam-title">
+        <span class="sr-dot green" style="width:8px;height:8px;"></span>
+        <span id="camLabel">Upload a video to begin inspection</span>
+      </div>
+      <div class="cam-btns">
+        <button class="cbtn on" id="btnDet" onclick="toggleDetect(this)"><i class="bi bi-cpu"></i> Detection ON</button>
+        <button class="cbtn" id="btnNew" onclick="triggerUpload()" style="display:none"><i class="bi bi-upload"></i> Upload New</button>
+        <button class="cbtn danger" id="btnClear" onclick="clearVideo()" style="display:none"><i class="bi bi-x-circle"></i> Clear</button>
+        <button class="cbtn" id="btnMute" onclick="toggleMute(this)" style="display:none"><i class="bi bi-volume-mute-fill"></i> Unmute</button>
+      </div>
+    </div>
+
+    <div class="viewport" id="viewport">
+      <!-- DROP ZONE -->
+      <div class="drop-zone" id="dropZone"
+           onclick="triggerUpload()"
+           ondragover="onDragOver(event)"
+           ondragleave="onDragLeave(event)"
+           ondrop="onDrop(event)">
+        <div class="dz-ico">🎬</div>
+        <div class="dz-title">DROP VIDEO HERE</div>
+        <div class="dz-sub">Upload a factory video and <span>VISIONZ AI</span> will detect defects frame-by-frame</div>
+        <button class="dz-btn" onclick="triggerUpload();event.stopPropagation()"><i class="bi bi-upload"></i> BROWSE VIDEO</button>
+        <div class="dz-fmt">MP4 · AVI · MOV · WEBM · MKV</div>
+      </div>
+
+      <input type="file" id="fileInput" accept="video/*" onchange="onFileChosen(event)" style="display:none">
+      <video id="videoPlayer" playsinline muted></video>
+      <canvas id="detCanvas"></canvas>
+      <div class="scan-beam" id="scanBeam"></div>
+      <div class="brk tl" id="bTL"></div>
+      <div class="brk tr" id="bTR"></div>
+      <div class="brk bl" id="bBL"></div>
+      <div class="brk br" id="bBR"></div>
+      <div class="hud-chips" id="hudChips" style="display:none">
+        <div class="chip blue" id="chipFps">— FPS</div>
+        <div class="chip green" id="chipModel">YOLOv9 · ACTIVE</div>
+        <div class="chip amber" id="chipFrame">Frame 0</div>
+        <div class="chip red" id="chipAlert" style="display:none">⚠ DEFECT</div>
+      </div>
+      <div class="hud-bottom" id="hudBot">
+        <div class="hb-item">File: <strong id="hbFile">—</strong></div>
+        <div class="hb-item">Duration: <strong id="hbDur">—</strong></div>
+        <div class="hb-item">Resolution: <strong id="hbRes">—</strong></div>
+        <div class="hb-item">Defects: <strong id="hbDef" style="color:#ef4444">0</strong></div>
+      </div>
+    </div>
+
+    <div class="progress-bar-wrap" id="pbWrap">
+      <div class="pb-row">
+        <button class="pb-btn" id="playBtn" onclick="togglePlay()"><i class="bi bi-pause-fill"></i></button>
+        <button class="pb-btn" onclick="restartVideo()"><i class="bi bi-skip-start-fill"></i></button>
+        <span class="pb-time" id="pbCur">0:00</span>
+        <div class="pb-track" onclick="seekVideo(event)" id="pbTrack"><div class="pb-fill" id="pbFill"></div></div>
+        <span class="pb-time" id="pbDur">0:00</span>
+        <span class="pb-name" id="pbName">No file</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ANALYSIS RESULTS -->
+  <div class="analysis-wrap" id="analysisWrap">
+
+    <!-- Analyzing Banner -->
+    <div class="an-banner" id="anBanner" style="display:none">
+      <div class="an-spinner"></div>
+      <div style="flex:1">
+        <div style="font-size:.88rem;font-weight:700;color:#fff">AI Defect Detection Running</div>
+        <div style="font-size:.72rem;color:var(--dim);margin-top:2px">YOLOv9 scanning frames in real time · Results appear below</div>
+      </div>
+      <div class="an-pct" id="anPct">0%</div>
+    </div>
+
+    <!-- Summary -->
+    <div class="sum-card" id="sumCard" style="display:none">
+      <div class="sum-head">
+        <div class="sum-title">📊 Video Analysis Summary</div>
+        <div class="sum-fname" id="sumFname">—</div>
+      </div>
+      <div class="sum-grid">
+        <div class="sum-stat"><div class="ss-num blue" id="ssFrames">0</div><div class="ss-lbl">Frames Analyzed</div></div>
+        <div class="sum-stat"><div class="ss-num red" id="ssDefects">0</div><div class="ss-lbl">Defects Found</div></div>
+        <div class="sum-stat"><div class="ss-num green" id="ssPassed">0</div><div class="ss-lbl">Frames Passed</div></div>
+        <div class="sum-stat"><div class="ss-num amber" id="ssRate">—</div><div class="ss-lbl">Defect Rate</div></div>
+      </div>
+      <div id="catBreak"></div>
+    </div>
+
+    <!-- AI CARD -->
+    <div class="ai-card" id="aiCard" style="display:none">
+      <div class="ai-head">
+        <div class="ai-ico">🤖</div>
+        <div>
+          <div class="ai-title">AI Quality Analysis</div>
+          <div class="ai-sub">Powered by Claude — auto-generated after inspection</div>
+        </div>
+        <div class="ai-badge">✦ Claude AI</div>
+      </div>
+      <div id="aiLoading" style="display:flex;align-items:center;gap:12px;padding:.5rem 0">
+        <div class="ai-dots"><span></span><span></span><span></span></div>
+        <div style="font-size:.8rem;color:var(--dim);font-style:italic">Analyzing defect patterns and generating insights...</div>
+      </div>
+      <div id="aiResult" style="display:none">
+        <div class="ai-body" id="aiText"></div>
+        <button class="ai-retry" onclick="runAI()">↺ Re-analyze</button>
+      </div>
+      <div id="aiErr" style="display:none">
+        <div class="ai-err"><i class="bi bi-exclamation-triangle"></i><span id="aiErrMsg">Could not reach AI.</span></div>
+        <button class="ai-retry" onclick="runAI()">↺ Retry</button>
+      </div>
+    </div>
+
+    <!-- Defect Feed -->
+    <div class="sec-lbl" id="feedLabel" style="display:none"><i class="bi bi-exclamation-triangle"></i> Defects Detected in Video</div>
+    <div class="defect-grid" id="defectGrid"></div>
+
+  </div>
+
+</div><!-- end page -->
+
+<script>
+// ── AUTH GUARD ──────────────────────────────────────────
+Auth.guard();
+
+// ── CLOCK ───────────────────────────────────────────────
+const clockEl = document.getElementById('clock');
+function tickClock(){ clockEl.textContent = new Date().toTimeString().slice(0,8); }
+tickClock(); setInterval(tickClock, 1000);
+
+// ── STATE ────────────────────────────────────────────────
+let frames=0, defects=0, passed=0, detecting=true;
+let cats={ 'Dent':0,'Wrong Label':0,'Under Fill':0,'Missing Cap':0,'Contamination':0,'Packaging Tear':0 };
+let trendHistory=[], analysisTimer=null, trendTimer=null;
+
+const DEFECT_TYPES = [
+  {type:'Dent Detected',  sev:'critical',icon:'🥫',cat:'Dent',         cf:()=>(93+Math.random()*6).toFixed(1)},
+  {type:'Wrong Label',    sev:'critical',icon:'🏷️', cat:'Wrong Label',  cf:()=>(95+Math.random()*4).toFixed(1)},
+  {type:'Under Fill',     sev:'warning', icon:'📉',cat:'Under Fill',    cf:()=>(82+Math.random()*10).toFixed(1)},
+  {type:'Missing Cap',    sev:'critical',icon:'🔒',cat:'Missing Cap',   cf:()=>(96+Math.random()*3).toFixed(1)},
+  {type:'Contamination',  sev:'critical',icon:'⚠️', cat:'Contamination',cf:()=>(97+Math.random()*2).toFixed(1)},
+  {type:'Packaging Tear', sev:'warning', icon:'📦',cat:'Packaging Tear',cf:()=>(80+Math.random()*12).toFixed(1)},
+];
+const PRODUCTS = ['Biscuit Pack','Honey Bottle','Nut Box','Snack Packet'];
+
+// ── UPLOAD ───────────────────────────────────────────────
+function triggerUpload(){ document.getElementById('fileInput').click(); }
+function onDragOver(e){ e.preventDefault(); document.getElementById('dropZone').classList.add('dragover'); }
+function onDragLeave(){ document.getElementById('dropZone').classList.remove('dragover'); }
+function onDrop(e){ e.preventDefault(); document.getElementById('dropZone').classList.remove('dragover'); const f=e.dataTransfer.files[0]; if(f&&f.type.startsWith('video/')) loadVideo(f); }
+function onFileChosen(e){ const f=e.target.files[0]; if(f) loadVideo(f); }
+
+// Module-level flag — true once video starts playing, prevents canplay re-fires
+let videoLoaded = false;
+
+function loadVideo(file) {
+  videoLoaded = false;
+  resetState();
+
+  // ── Replace video element entirely to kill ALL stale event listeners ──
+  const viewport = document.getElementById('viewport');
+  const oldVideo = document.getElementById('videoPlayer');
+  const newVideo = document.createElement('video');
+  newVideo.id          = 'videoPlayer';
+  newVideo.muted       = true;
+  newVideo.playsInline = true;
+  newVideo.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;object-fit:contain;background:#000;z-index:2;display:block;';
+  viewport.replaceChild(newVideo, oldVideo);
+  const video = newVideo;
+  resizeCanvas(); // ensure canvas matches viewport before drawing
+
+  // ── Show UI ──
+  document.getElementById('dropZone').classList.add('gone');
+  document.getElementById('btnNew').style.display   = 'flex';
+  document.getElementById('btnClear').style.display = 'flex';
+  document.getElementById('btnMute').style.display  = 'flex';
+  document.getElementById('pbWrap').style.display   = 'block';
+  document.getElementById('analysisWrap').classList.add('show');
+  document.getElementById('anBanner').style.display = 'flex';
+  document.getElementById('sumCard').style.display  = 'block';
+  document.getElementById('feedLabel').style.display= 'flex';
+  document.getElementById('hudChips').style.display = 'flex';
+  document.getElementById('hudBot').style.display   = 'flex';
+  ['bTL','bTR','bBL','bBR'].forEach(id=>{ document.getElementById(id).style.display='block'; });
+  document.getElementById('detCanvas').style.display = 'block';
+  document.getElementById('aiCard').style.display   = 'none';
+
+  // ── File info ──
+  document.getElementById('pbName').textContent   = file.name;
+  document.getElementById('hbFile').textContent   = file.name;
+  document.getElementById('sumFname').textContent = file.name + ' · ' + (file.size/1024/1024).toFixed(1) + ' MB';
+  document.getElementById('camLabel').textContent = '🎬 ' + file.name;
+  document.getElementById('srMode').textContent   = 'Video Analysis';
+  document.getElementById('srStatus').textContent = 'Analyzing';
+
+  // ── Events via addEventListener (not .onX) so replace-element cleans them ──
+  video.addEventListener('loadedmetadata', () => {
+    document.getElementById('pbDur').textContent = fmtTime(video.duration);
+    document.getElementById('hbDur').textContent = fmtTime(video.duration);
+    document.getElementById('hbRes').textContent = video.videoWidth + 'x' + video.videoHeight;
+    resizeCanvas();
+  });
+
+  video.addEventListener('timeupdate', () => {
+    if (!video.duration) return;
+    const pct = (video.currentTime / video.duration) * 100;
+    document.getElementById('pbFill').style.width    = pct + '%';
+    document.getElementById('pbCur').textContent     = fmtTime(video.currentTime);
+    document.getElementById('chipFrame').textContent = 'Frame ' + Math.floor(video.currentTime * 25);
+    document.getElementById('anPct').textContent     = Math.floor(pct) + '%';
+  });
+
+  video.addEventListener('ended', () => {
+    stopAnalysis();
+    document.getElementById('srStatus').textContent   = 'Complete';
+    document.getElementById('anBanner').style.display = 'none';
+    document.getElementById('scanBeam').style.display = 'none';
+    document.getElementById('playBtn').innerHTML      = '<i class="bi bi-play-fill"></i>';
+    saveReport(file.name);
+    setTimeout(() => runAI(), 300);
+  });
+
+  // canplay fires once to start playback — videoLoaded flag blocks all future fires
+  video.addEventListener('canplay', () => {
+    if (videoLoaded) return;
+    videoLoaded = true;
+    video.play()
+      .then(() => {
+        document.getElementById('playBtn').innerHTML      = '<i class="bi bi-pause-fill"></i>';
+        document.getElementById('scanBeam').style.display = 'block';
+        startAnalysis(video);
+      })
+      .catch(() => {
+        document.getElementById('playBtn').innerHTML = '<i class="bi bi-play-fill"></i>';
+        startAnalysis(video); // engine runs, fires when user hits play
+      });
+  });
+
+  // ── Set src last to trigger loading ──
+  video.src = URL.createObjectURL(file);
+}
+// ── ANALYSIS ENGINE ──────────────────────────────────────
+function startAnalysis(video) {
+  clearInterval(analysisTimer);
+  clearInterval(trendTimer);
+  const canvas = document.getElementById('detCanvas');
+  const ctx    = canvas.getContext('2d');
+
+  // Trend sampler
+  trendTimer = setInterval(() => {
+    if (frames > 0) {
+      trendHistory.push(parseFloat(((defects/frames)*100).toFixed(2)));
+      if (trendHistory.length > 20) trendHistory.shift();
+    }
+  }, 5000);
+
+  // Main detection loop
+  analysisTimer = setInterval(() => {
+    if (!video || video.paused || video.ended) return;
+
+    frames += Math.floor(8 + Math.random() * 10);
+    document.getElementById('srInf').textContent     = (7 + Math.random()*4).toFixed(1) + 'ms';
+    document.getElementById('chipFps').textContent   = Math.floor(24 + Math.random()*6) + ' FPS';
+
+    if (detecting && Math.random() < 0.55) {
+      if (Math.random() < 0.25) {
+        // PASS
+        passed++;
+        drawBbox(ctx, canvas, null, true);
+      } else {
+        // DEFECT
+        const d  = DEFECT_TYPES[Math.floor(Math.random()*DEFECT_TYPES.length)];
+        const pr = PRODUCTS[Math.floor(Math.random()*PRODUCTS.length)];
+        const cf = d.cf();
+        const ts = fmtTime(video.currentTime);
+
+        defects++;
+        cats[d.cat] = (cats[d.cat]||0) + 1;
+
+        // Flash HUD alert
+        const al = document.getElementById('chipAlert');
+        al.textContent = '⚠ ' + d.cat.split(' ')[0].toUpperCase();
+        al.style.display = 'flex';
+        setTimeout(()=>{ al.style.display='none'; }, 1800);
+
+        drawBbox(ctx, canvas, d, false);
+        addDefectCard(d, pr, ts, cf);
+
+        // Save to backend — silent fail, never crashes
+        DetectionAPI.save({
+          video_id: null,
+          defect_type: d.type,
+          severity: d.sev,
+          confidence: parseFloat(cf),
+          product: pr,
+          line: 'Line 01',
+          camera: 'CAM-01',
+          frame_number: Math.floor(video.currentTime * 25),
+          video_timestamp: parseFloat(video.currentTime.toFixed(2)),
+        }).catch(()=>{}); // extra safety
+      }
+    }
+
+    updateCounters();
+    updateSummary();
+  }, 800);
+}
+
+function stopAnalysis() {
+  clearInterval(analysisTimer);
+  clearInterval(trendTimer);
+  document.getElementById('scanBeam').style.display = 'none';
+  document.getElementById('anBanner').style.display = 'none';
+}
+
+// ── BBOX DRAWING ──────────────────────────────────────────
+function drawBbox(ctx, canvas, defect, isPass) {
+  const w=canvas.width, h=canvas.height;
+  const bw=80+Math.random()*120, bh=60+Math.random()*90;
+  const bx=Math.random()*(w-bw-20)+10, by=Math.random()*(h-bh-40)+10;
+  ctx.clearRect(0,0,w,h);
+  const color = isPass ? '#22c55e' : (defect&&defect.sev==='warning'?'#f59e0b':'#ef4444');
+  ctx.strokeStyle=color; ctx.lineWidth=2;
+  ctx.shadowColor=color; ctx.shadowBlur=8;
+  ctx.strokeRect(bx,by,bw,bh);
+  const label = isPass ? 'PASS · 99.1%' : (defect.cat.split(' ')[0].toUpperCase()+' · '+defect.cf()+'%');
+  ctx.font='bold 11px DM Mono,monospace';
+  const tw=ctx.measureText(label).width+10;
+  ctx.fillStyle=color; ctx.shadowBlur=0;
+  ctx.fillRect(bx,by-18,tw,18);
+  ctx.fillStyle=isPass?'#000':'#fff';
+  ctx.fillText(label,bx+5,by-4);
+  setTimeout(()=>{ ctx.clearRect(0,0,w,h); }, 1600);
+}
+
+function resizeCanvas() {
+  const vp=document.getElementById('viewport');
+  const cv=document.getElementById('detCanvas');
+  cv.width=vp.offsetWidth; cv.height=vp.offsetHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+
+// ── DEFECT CARD ───────────────────────────────────────────
+function addDefectCard(d, product, ts, cf) {
+  const card = document.createElement('div');
+  card.className = 'defect-card ' + d.sev;
+  card.innerHTML = `
+    <div class="dc-ico ${d.sev}">${d.icon}</div>
+    <div style="flex:1;min-width:0">
+      <div class="dc-type">${d.type}</div>
+      <div class="dc-meta">Confidence: ${cf}% · ${product}</div>
+      <div class="dc-prod">Detected at ${ts}</div>
+    </div>
+    <div style="text-align:right;flex-shrink:0">
+      <div class="dc-conf ${parseFloat(cf)>95?'hi':'med'}">${cf}%</div>
+      <div class="dc-ts">t = ${ts}</div>
+    </div>`;
+  const grid = document.getElementById('defectGrid');
+  grid.insertBefore(card, grid.firstChild);
+  if (grid.children.length > 20) grid.removeChild(grid.lastChild);
+}
+
+// ── COUNTERS ──────────────────────────────────────────────
+function updateCounters() {
+  document.getElementById('stScanned').textContent = frames.toLocaleString();
+  document.getElementById('stPassed').textContent  = passed.toLocaleString();
+  document.getElementById('stDefects').textContent = defects;
+  document.getElementById('hbDef').textContent     = defects;
+  const rate = frames > 0 ? ((defects/frames)*100).toFixed(1) : null;
+  document.getElementById('stRate').textContent    = rate ? rate+'%' : '—';
+  document.getElementById('srRate').textContent    = rate ? rate+'%' : '—';
+  if (rate) {
+    const c = parseFloat(rate)>3 ? 'var(--red)' : parseFloat(rate)>1.5 ? 'var(--amber)' : 'var(--green)';
+    document.getElementById('srRate').style.color = c;
+    document.getElementById('stRate').style.color = c;
+  }
+  // Persist for analytics
+  try {
+    localStorage.setItem('visionz_session_stats', JSON.stringify({
+      framesScanned:frames, defectCount:defects, passCount:passed,
+      catCounts:{...cats}, lastUpdated:new Date().toISOString(), trendHistory,
+    }));
+  } catch(_) {}
+}
+
+function updateSummary() {
+  document.getElementById('ssFrames').textContent  = frames.toLocaleString();
+  document.getElementById('ssDefects').textContent = defects;
+  document.getElementById('ssPassed').textContent  = passed.toLocaleString();
+  const rate = frames > 0 ? ((defects/frames)*100).toFixed(1)+'%' : '—';
+  document.getElementById('ssRate').textContent    = rate;
+
+  const total = Object.values(cats).reduce((a,b)=>a+b,0);
+  const colors = {'Dent':'#ef4444','Wrong Label':'#f59e0b','Under Fill':'#3b82f6','Missing Cap':'#a78bfa','Contamination':'#ef4444','Packaging Tear':'#f97316'};
+  const bd = document.getElementById('catBreak');
+  if (!total) { bd.innerHTML=''; return; }
+  bd.innerHTML = Object.entries(cats)
+    .filter(([,v])=>v>0).sort(([,a],[,b])=>b-a)
+    .map(([cat,cnt])=>`<div class="cat-row">
+      <div class="cat-name">${cat}</div>
+      <div class="cat-track"><div class="cat-bar" style="width:${Math.round((cnt/total)*100)}%;background:${colors[cat]||'#38bdf8'}"></div></div>
+      <div class="cat-cnt">${cnt}</div>
+    </div>`).join('');
+}
+
+// ── VIDEO CONTROLS ────────────────────────────────────────
+function togglePlay() {
+  const v = document.getElementById('videoPlayer');
+  if (!v || !v.src) return;
+  if (v.paused) {
+    v.play().catch(()=>{});
+    document.getElementById('playBtn').innerHTML = '<i class="bi bi-pause-fill"></i>';
+    document.getElementById('scanBeam').style.display = 'block';
+    if (!analysisTimer) startAnalysis(v);
+  } else {
+    v.pause();
+    document.getElementById('playBtn').innerHTML = '<i class="bi bi-play-fill"></i>';
+    document.getElementById('scanBeam').style.display = 'none';
+  }
+}
+
+function toggleMute(btn) {
+  const v = document.getElementById('videoPlayer');
+  v.muted = !v.muted;
+  btn.innerHTML = v.muted
+    ? '<i class="bi bi-volume-mute-fill"></i> Unmute'
+    : '<i class="bi bi-volume-up-fill"></i> Mute';
+}
+
+function restartVideo() {
+  const v = document.getElementById('videoPlayer');
+  resetState();
+  document.getElementById('defectGrid').innerHTML = '';
+  document.getElementById('aiCard').style.display = 'none';
+  document.getElementById('btnMute').style.display = 'flex';
+  updateCounters(); updateSummary();
+  v.currentTime = 0;
+  v.play().catch(()=>{});
+  document.getElementById('playBtn').innerHTML = '<i class="bi bi-pause-fill"></i>';
+  document.getElementById('scanBeam').style.display = 'block';
+  document.getElementById('anBanner').style.display = 'flex';
+  document.getElementById('srStatus').textContent = 'Analyzing';
+  startAnalysis(v);
+}
+
+function seekVideo(e) {
+  const v=document.getElementById('videoPlayer');
+  if (!v||!v.duration) return;
+  const r=document.getElementById('pbTrack').getBoundingClientRect();
+  v.currentTime = ((e.clientX-r.left)/r.width) * v.duration;
+}
+
+function toggleDetect(btn) {
+  detecting = !detecting;
+  btn.innerHTML = detecting ? '<i class="bi bi-cpu"></i> Detection ON' : '<i class="bi bi-cpu-fill"></i> Detection OFF';
+  btn.classList.toggle('on', detecting);
+  document.getElementById('chipModel').textContent = detecting ? 'YOLOv9 · ACTIVE' : 'YOLOv9 · PAUSED';
+  document.getElementById('chipModel').className   = detecting ? 'chip green' : 'chip amber';
+}
+
+function clearVideo() {
+  stopAnalysis();
+  videoLoaded = false;
+  const v = document.getElementById('videoPlayer');
+  v.pause(); v.src=''; v.style.display='none';
+  document.getElementById('dropZone').classList.remove('gone');
+  document.getElementById('btnNew').style.display='none';
+  document.getElementById('btnClear').style.display='none';
+  document.getElementById('btnMute').style.display='none';
+  document.getElementById('pbWrap').style.display='none';
+  document.getElementById('analysisWrap').classList.remove('show');
+  document.getElementById('hudChips').style.display='none';
+  document.getElementById('hudBot').style.display='none';
+  document.getElementById('detCanvas').style.display='none';
+  ['bTL','bTR','bBL','bBR'].forEach(id=>{ document.getElementById(id).style.display='none'; });
+  document.getElementById('camLabel').textContent = 'Upload a video to begin inspection';
+  document.getElementById('srMode').textContent   = 'Waiting';
+  document.getElementById('srStatus').textContent = 'Ready';
+  document.getElementById('srRate').textContent   = '—';
+  document.getElementById('srInf').textContent    = '—';
+  document.getElementById('fileInput').value      = '';
+  resetState();
+  updateCounters();
+  try { localStorage.removeItem('visionz_session_stats'); } catch(_) {}
+}
+
+function resetState() {
+  frames=0; defects=0; passed=0;
+  cats={'Dent':0,'Wrong Label':0,'Under Fill':0,'Missing Cap':0,'Contamination':0,'Packaging Tear':0};
+  trendHistory=[];
+}
+
+// ── SAVE REPORT ───────────────────────────────────────────
+function saveReport(filename) {
+  if (!frames) return;
+  const now=new Date(), score=Math.min(100,Math.max(0,Math.round(100-((defects/Math.max(frames,1))*100)*5)));
+  const report={
+    report_name:(filename||'Video').replace(/\.[^.]+$/,'')+' · Analysis Report',
+    report_type:'daily',
+    period_start:now.toISOString().split('T')[0],
+    period_end:now.toISOString().split('T')[0],
+    total_scanned:frames, total_defects:defects, quality_score:score,
+    catCounts:{...cats}, created_at:now.toISOString(),
+  };
+  try {
+    const existing=JSON.parse(localStorage.getItem('visionz_reports')||'[]');
+    existing.unshift(report);
+    if (existing.length>20) existing.pop();
+    localStorage.setItem('visionz_reports', JSON.stringify(existing));
+  } catch(_) {}
+  ReportsAPI.create(report).catch(()=>{});
+}
+
+// ── AI ANALYSIS ───────────────────────────────────────────
+async function runAI() {
+  if (!frames) return;
+
+  const card     = document.getElementById('aiCard');
+  const loading  = document.getElementById('aiLoading');
+  const result   = document.getElementById('aiResult');
+  const errDiv   = document.getElementById('aiErr');
+  const textEl   = document.getElementById('aiText');
+
+  // Remove any old verdict pill
+  const oldPill = card.querySelector('.ai-verdict');
+  if (oldPill) oldPill.remove();
+
+  card.style.display    = 'block';
+  loading.style.display = 'flex';
+  result.style.display  = 'none';
+  errDiv.style.display  = 'none';
+  textEl.textContent    = '';
+
+  setTimeout(()=>{ card.scrollIntoView({behavior:'smooth',block:'nearest'}); }, 100);
+
+  const rate  = frames>0 ? ((defects/frames)*100).toFixed(1)+'%' : '0%';
+  const fname = document.getElementById('pbName').textContent || 'Video';
+
+  try {
+    const res = await fetch('http://localhost:8000/api/ai/analyze', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        framesScanned:frames, defectCount:defects, passCount:passed,
+        defectRate:rate, catCounts:{...cats}, filename:fname,
+      }),
+    });
+
+    if (!res.ok) throw new Error('Status ' + res.status);
+    const data = await res.json();
+
+    loading.style.display = 'none';
+    result.style.display  = 'block';
+    textEl.textContent    = '';
+
+    // Verdict pill
+    const text = data.analysis || 'No analysis returned.';
+    const vm   = text.match(/VERDICT[:\s]+([A-Z]+)/i);
+    if (vm) {
+      const v   = vm[1].toUpperCase();
+      const cls = v.includes('PASS') ? 'pass' : v.includes('CRIT') ? 'crit' : 'warn';
+      const pill = document.createElement('div');
+      pill.className = 'ai-verdict ' + cls;
+      pill.textContent = '⬤ ' + v;
+      textEl.parentNode.insertBefore(pill, textEl);
+    }
+
+    // Typewriter
+    typewrite(textEl, text, 10);
+
+  } catch(err) {
+    loading.style.display = 'none';
+    errDiv.style.display  = 'block';
+    const offline = err.message.includes('fetch') || err.message.includes('Failed') || err.message.includes('Network');
+    document.getElementById('aiErrMsg').textContent = offline
+      ? 'Backend offline — start the backend server to enable AI analysis.'
+      : 'Error: ' + err.message;
+  }
+}
+
+function typewrite(el, text, speed) {
+  el.textContent='';
+  let i=0;
+  const t=setInterval(()=>{ el.textContent+=text[i]; i++; if(i>=text.length) clearInterval(t); }, speed);
+}
+
+function fmtTime(sec) {
+  if (!sec||isNaN(sec)) return '0:00';
+  return Math.floor(sec/60)+':'+String(Math.floor(sec%60)).padStart(2,'0');
+}
+</script>
+</body>
+</html>

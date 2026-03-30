@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VISIONZ — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+:root{--bg:#020617;--surface:#0F172A;--card:#111827;--hover:#1E293B;--accent:#38bdf8;--accent2:#818cf8;--border:rgba(56,189,248,0.15);--text:#e2e8f0;--dim:#64748b;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);font-family:'Outfit',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;position:relative;overflow:hidden;}
+
+.bg-glow{position:fixed;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(56,189,248,0.06) 0%,transparent 70%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
+.grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(56,189,248,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,0.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;}
+
+.login-card{
+  background:rgba(17,24,39,0.92);
+  border:1px solid var(--border);
+  backdrop-filter:blur(20px);
+  border-radius:24px;
+  padding:2.5rem 2rem;
+  width:100%;max-width:460px;
+  position:relative;z-index:10;
+  box-shadow:0 25px 60px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.05);
+  animation:slideUp 0.6s cubic-bezier(0.34,1.2,0.64,1);
+}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:none;}}
+.login-card::before{content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(56,189,248,0.5),transparent);}
+
+.login-brand{text-align:center;margin-bottom:2rem;}
+.login-logo{width:52px;height:52px;background:linear-gradient(135deg,rgba(56,189,248,0.15),rgba(129,140,248,0.1));border:1px solid rgba(56,189,248,0.3);border-radius:14px;display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:0.75rem;}
+.login-title{font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:900;color:#fff;letter-spacing:4px;}
+.login-title span{color:var(--accent);}
+.login-sub{font-size:0.8rem;color:var(--dim);margin-top:0.3rem;letter-spacing:0.5px;}
+
+.form-label-custom{font-size:0.72rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:0.4rem;display:block;}
+.form-control-custom{
+  background:var(--hover);border:1px solid rgba(56,189,248,0.12);
+  color:var(--text);border-radius:12px;padding:0.8rem 1rem;
+  font-size:0.9rem;font-family:'Outfit',sans-serif;width:100%;outline:none;
+  transition:all 0.2s;
+}
+.form-control-custom:focus{border-color:rgba(56,189,248,0.5);background:#1e293b;box-shadow:0 0 0 3px rgba(56,189,248,0.1);}
+.form-control-custom::placeholder{color:#374151;}
+.input-icon-wrap{position:relative;}
+.input-icon{position:absolute;right:1rem;top:50%;transform:translateY(-50%);color:var(--dim);cursor:pointer;font-size:0.95rem;transition:color 0.2s;}
+.input-icon:hover{color:var(--accent);}
+
+/* ROLE SELECTOR */
+.role-label{font-size:0.72rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--dim);margin-bottom:0.4rem;display:block;}
+.role-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1.25rem;}
+.role-btn{
+  background:var(--hover);border:2px solid rgba(56,189,248,0.1);
+  border-radius:12px;padding:0.8rem 0.5rem;text-align:center;
+  cursor:pointer;transition:all 0.2s;user-select:none;
+}
+.role-btn:hover{border-color:rgba(56,189,248,0.3);background:rgba(30,41,59,0.8);}
+.role-btn.selected{border-color:var(--accent);background:rgba(56,189,248,0.08);box-shadow:0 0 12px rgba(56,189,248,0.15);}
+.role-icon{font-size:1.5rem;display:block;margin-bottom:0.3rem;}
+.role-name{font-size:0.72rem;font-weight:700;color:var(--text);letter-spacing:0.5px;}
+.role-desc{font-size:0.6rem;color:var(--dim);margin-top:2px;}
+.role-btn.selected .role-name{color:var(--accent);}
+
+/* SUBMIT */
+.btn-login{
+  width:100%;padding:0.9rem;
+  background:linear-gradient(135deg,rgba(56,189,248,0.2),rgba(129,140,248,0.15));
+  border:1px solid rgba(56,189,248,0.4);
+  color:#fff;font-family:'Orbitron',sans-serif;font-size:0.82rem;
+  font-weight:700;letter-spacing:3px;border-radius:12px;
+  cursor:pointer;transition:all 0.3s;margin-top:0.25rem;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.btn-login:hover{border-color:rgba(56,189,248,0.8);box-shadow:0 0 30px rgba(56,189,248,0.2);transform:translateY(-1px);}
+.btn-login:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+
+/* ERROR */
+.error-msg{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);border-radius:10px;padding:0.7rem 0.9rem;font-size:0.8rem;color:#fca5a5;margin-bottom:1rem;display:none;align-items:center;gap:8px;}
+.error-msg.show{display:flex;}
+
+.back-link{display:block;text-align:center;margin-top:1.25rem;font-size:0.78rem;color:var(--dim);text-decoration:none;transition:color 0.2s;}
+.back-link:hover{color:var(--accent);}
+
+/* Hint text */
+.role-hint{font-size:0.7rem;color:var(--dim);text-align:center;margin-bottom:0.75rem;line-height:1.4;}
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="grid-bg"></div>
+
+<div class="login-card">
+  <div class="login-brand">
+    <div class="login-logo">👁️</div>
+    <div class="login-title">VISION<span>Z</span></div>
+    <div class="login-sub">Sign in to access your dashboard</div>
+  </div>
+
+  <div class="error-msg" id="errorMsg">
+    <i class="bi bi-exclamation-circle"></i>
+    <span id="errorText">Invalid credentials</span>
+  </div>
+
+  <!-- EMAIL -->
+  <div class="mb-3">
+    <label class="form-label-custom">Email Address</label>
+    <div class="input-icon-wrap">
+      <input type="email" class="form-control-custom" id="emailInput" placeholder="your@visionz.com" autocomplete="email" list="email-hints">
+      <i class="bi bi-envelope input-icon"></i>
+    </div>
+    <datalist id="email-hints">
+      <option value="arun@visionz.com">
+      <option value="priya@visionz.com">
+      <option value="ravi@visionz.com">
+      <option value="meena@visionz.com">
+      <option value="karthik@visionz.com">
+      <option value="nivethitha@visionz.com">
+    </datalist>
+  </div>
+
+  <!-- PASSWORD -->
+  <div class="mb-3">
+    <label class="form-label-custom">Password</label>
+    <div class="input-icon-wrap">
+      <input type="password" class="form-control-custom" id="passInput" placeholder="••••••••" style="padding-right:3rem;" autocomplete="current-password">
+      <i class="bi bi-eye input-icon" id="eyeToggle" onclick="togglePass()"></i>
+    </div>
+  </div>
+
+  <!-- ROLE -->
+  <div class="mb-3">
+    <label class="role-label">Select Your Role <span style="color:#ef4444">*</span></label>
+    <p class="role-hint">⚠️ Role must match your registered account role to proceed.</p>
+    <div class="role-grid">
+      <div class="role-btn" id="role-admin" onclick="selectRole('admin')">
+        <span class="role-icon">👑</span>
+        <div class="role-name">Admin</div>
+        <div class="role-desc">Full Access</div>
+      </div>
+      <div class="role-btn" id="role-manager" onclick="selectRole('manager')">
+        <span class="role-icon">📊</span>
+        <div class="role-name">Manager</div>
+        <div class="role-desc">Reports + Analytics</div>
+      </div>
+      <div class="role-btn" id="role-operator" onclick="selectRole('operator')">
+        <span class="role-icon">🏭</span>
+        <div class="role-name">Operator</div>
+        <div class="role-desc">Monitor Only</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-login" id="loginBtn" onclick="doLogin()">
+    <i class="bi bi-box-arrow-in-right"></i>
+    SIGN IN
+  </button>
+
+  <a href="index.html" class="back-link"><i class="bi bi-arrow-left me-1"></i>Back to Home</a>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+let selectedRole = null; // No default — user MUST choose
+
+function selectRole(role) {
+  selectedRole = role;
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById('role-' + role).classList.add('selected');
+  hideError();
+}
+
+function togglePass() {
+  const p = document.getElementById('passInput');
+  const e = document.getElementById('eyeToggle');
+  if (p.type === 'password') { p.type = 'text'; e.className = 'bi bi-eye-slash input-icon'; }
+  else { p.type = 'password'; e.className = 'bi bi-eye input-icon'; }
+}
+
+function showError(msg) {
+  document.getElementById('errorText').textContent = msg;
+  document.getElementById('errorMsg').classList.add('show');
+}
+
+function hideError() {
+  document.getElementById('errorMsg').classList.remove('show');
+}
+
+function resetBtn() {
+  const btn = document.getElementById('loginBtn');
+  btn.innerHTML = '<i class="bi bi-box-arrow-in-right"></i> SIGN IN';
+  btn.disabled = false;
+  btn.style.borderColor = '';
+  btn.style.background  = '';
+}
+
+function doLogin() {
+  const email = document.getElementById('emailInput').value.trim().toLowerCase();
+  const pass  = document.getElementById('passInput').value;
+  hideError();
+
+  if (!email)        { showError('Please enter your email address.'); return; }
+  if (!pass)         { showError('Please enter your password.'); return; }
+  if (!selectedRole) { showError('Please select your role before signing in.'); return; }
+
+  const btn = document.getElementById('loginBtn');
+  btn.innerHTML = '<i class="bi bi-hourglass-split"></i> AUTHENTICATING...';
+  btn.disabled  = true;
+
+  // Local auth — instant, works without backend running
+  const result = Auth.localLogin(email, pass, selectedRole);
+
+  if (!result.ok) {
+    showError(result.error);
+    resetBtn();
+    return;
+  }
+
+  // Save session — sets both visionz_token and visionz_user in localStorage
+  Auth.saveSession({
+    ...result.user,
+    loginTime: new Date().toISOString(),
+  });
+
+  loginSuccess(result.user.name);
+}
+
+function loginSuccess(name) {
+  const btn = document.getElementById('loginBtn');
+  const firstName = name.split(' ')[0].toUpperCase();
+  btn.innerHTML = '<i class="bi bi-check-circle"></i> WELCOME, ' + firstName + '!';
+  btn.style.borderColor = 'rgba(34,197,94,0.7)';
+  btn.style.background  = 'rgba(34,197,94,0.12)';
+  // Short delay then navigate — no fade back because session is now saved
+  setTimeout(() => { window.location.replace('landing.html'); }, 800);
+}
+
+// Enter key
+document.addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+// Session is always cleared by index.html before reaching here
+</script>
+</body>
+</html>
