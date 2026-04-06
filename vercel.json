@@ -1,14 +1,14 @@
 {
   "framework": "python",
-  "public": "public",
-  "buildCommand": "pip install -r visionz_fixed/backend/requirements.txt",
+  "public": "frontend",
+  "buildCommand": "pip install -r backend/requirements.txt",
   "env": {
     "PYTHONUNBUFFERED": "1"
   },
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "/api/index.py"
+      "destination": "/backend/index.py"
     },
     {
       "source": "/(.*)",
