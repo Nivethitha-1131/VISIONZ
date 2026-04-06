@@ -1,20 +1,29 @@
 """
 VISIONZ FastAPI Application - Vercel Deployment Handler
-Serverless entry point for Vercel runtime
+Entry point for Vercel's Python runtime
 """
 
 import sys
 import os
+from pathlib import Path
+
+# Get the project root directory
+project_root = Path(__file__).parent.parent
 
 # Add backend to path
-backend_path = os.path.join(os.path.dirname(__file__), '..', 'visionz_fixed', 'backend')
+backend_path = str(project_root / 'visionz_fixed' / 'backend')
 sys.path.insert(0, backend_path)
 
 # Change to backend directory for relative imports
 os.chdir(backend_path)
 
-from app.main import app
+try:
+    from app.main import app
+except Exception as e:
+    print(f"Error importing FastAPI app: {e}")
+    raise
 
-# Vercel expects either 'app' or 'handler'
-# FastAPI app is exported as 'app' for Vercel Python runtime
+# Export as both 'app' and 'handler' for Vercel compatibility
+handler = app
+
 
