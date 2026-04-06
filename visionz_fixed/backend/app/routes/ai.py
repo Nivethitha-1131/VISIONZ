@@ -1,6 +1,6 @@
 """
 VISIONZ — AI Analysis Route
-Supports both Claude API and local Llama via Ollama
+Supports Claude API, local Llama via Ollama, and built-in local analyzer
 """
 
 from fastapi import APIRouter, Query
@@ -10,6 +10,7 @@ import urllib.error
 import json
 import os
 from typing import Optional
+from datetime import datetime
 
 from app.services.llama_service import get_llama_service
 from app.services.yolo_service import get_yolo_service
@@ -22,6 +23,111 @@ CLAUDE_API_KEY = settings.ANTHROPIC_API_KEY.strip() if settings.ANTHROPIC_API_KE
 
 # API key is configured if we have a valid key
 API_KEY_CONFIGURED = bool(CLAUDE_API_KEY and len(CLAUDE_API_KEY) > 20)
+
+
+def generate_local_analysis(
+    framesScanned: int,
+    defectCount: int,
+    passCount: int,
+    defectRate: str,
+    catCounts: dict,
+    filename: str = "Unknown Video"
+) -> dict:
+    """Generate AI quality analysis using local logic (no API required)"""
+    
+    try:
+        rate_val = float(defectRate.replace("%", "").strip())
+    except Exception:
+        rate_val = 0.0
+    
+    # Determine verdict based on defect rate
+    if rate_val == 0:
+        verdict = "PASS"
+        verdict_text = "No defects detected — excellent production quality."
+    elif rate_val < 2:
+        verdict = "PASS"
+        verdict_text = "Minimal defects — within acceptable tolerances."
+    elif rate_val < 5:
+        verdict = "WARNING"
+        verdict_text = "Moderate defect rate — immediate action recommended."
+    else:
+        verdict = "CRITICAL"
+        verdict_text = "High defect rate — production line requires shutdown for inspection."
+    
+    # Identify top defect causes
+    sorted_defects = sorted(catCounts.items(), key=lambda x: x[1], reverse=True)
+    top_defects = sorted_defects[:2]
+    
+    root_causes = []
+    if sorted_defects:
+        if sorted_defects[0][1] > 0:
+            root_causes.append(f"• {sorted_defects[0][0]}: Primary defect type—{((sorted_defects[0][1] / defectCount * 100) if defectCount > 0 else 0):.0f}% of all defects")
+        if len(sorted_defects) > 1 and sorted_defects[1][1] > 0:
+            root_causes.append(f"• {sorted_defects[1][0]}: Secondary defect type—{((sorted_defects[1][1] / defectCount * 100) if defectCount > 0 else 0):.0f}% of all defects")
+    
+    if not root_causes:
+        root_causes = ["• No significant defect patterns detected", "• Quality metrics within normal range"]
+    
+    # Generate recommendations based on defect type and rate
+    recommendations = []
+    
+    if defectCount == 0:
+        recommendations = [
+            "1. Continue current production parameters—no adjustments needed",
+            "2. Maintain routine maintenance schedule",
+            "3. Log production batch as approved for shipment"
+        ]
+    elif rate_val < 2:
+        recommendations = [
+            "1. Maintain current production settings and material sourcing",
+            "2. Schedule standard maintenance for equipment",
+            "3. Document batch as acceptable for shipment"
+        ]
+    elif rate_val < 5:
+        recommendations = [
+            "1. Increase quality control inspection frequency to 10 min intervals",
+            "2. Review recent material supplier changes or equipment calibration",
+            "3. Halt further production until root cause identified"
+        ]
+    else:
+        recommendations = [
+            "1. STOP production immediately—conduct full equipment diagnostic",
+            "2. Inspect raw material quality and temperature controls",
+            "3. Recalibrate vision systems and reset production parameters"
+        ]
+    
+    # Risk level assessment
+    if rate_val == 0:
+        risk_level = "Low"
+        risk_text = "No quality risks detected—production is optimal."
+    elif rate_val < 2:
+        risk_level = "Low"
+        risk_text = "Minimal risk—production meets quality standards."
+    elif rate_val < 5:
+        risk_level = "Medium"
+        risk_text = "Moderate risk—increased monitoring required."
+    else:
+        risk_level = "High"
+        risk_text = "Critical risk—immediate corrective action required."
+    
+    analysis_text = f"""VERDICT: {verdict} — {verdict_text}
+
+ROOT CAUSES:
+{chr(10).join(root_causes)}
+
+RECOMMENDATIONS:
+{chr(10).join(recommendations)}
+
+RISK LEVEL: {risk_level} — {risk_text}
+
+Summary: {framesScanned:,} frames analyzed. {defectCount} defects found ({defectRate}).
+Batch Report: {filename}"""
+    
+    return {
+        "analysis": analysis_text,
+        "model": "visionz-local-analyzer",
+        "timestamp": datetime.now().isoformat(),
+    }
 
 
 class AnalysisRequest(BaseModel):
@@ -60,9 +166,8 @@ def analyze_defects(req: AnalysisRequest):
 
     # ── DEMO MODE ──
     if not API_KEY_CONFIGURED:
-        print("[AI] Claude API key not configured, using Llama for analysis")
-        llama_service = get_llama_service()
-        result = llama_service.generate_analysis(
+        print("[AI] Claude API key not configured, using local analyzer")
+        result = generate_local_analysis(
             framesScanned=req.framesScanned,
             defectCount=req.defectCount,
             passCount=req.passCount,
@@ -132,69 +237,55 @@ Keep total response under 200 words. Be direct and practical."""
             err_detail = json.loads(body).get("error", {}).get("message", body[:100])
         except Exception:
             err_detail = body[:100]
-        # Fall back to Llama — never crash the frontend
-        print(f"[AI] Falling back to Llama due to Claude error")
-        llama_service = get_llama_service()
-        if llama_service.available:
-            llama_result = llama_service.generate_analysis(
-                framesScanned=req.framesScanned,
-                defectCount=req.defectCount,
-                passCount=req.passCount,
-                defectRate=req.defectRate,
-                catCounts=req.catCounts,
-                filename=req.filename
-            )
-            llama_result["analysis"] += f"\n\n⚠ Claude API error ({e.code}): {err_detail}\nFallback to Llama used."
-            llama_result["model"] = "llama-fallback"
-            return llama_result
-        return {
-            "analysis": f"⚠ Claude API error ({e.code}): {err_detail}\nLlama fallback unavailable.",
-            "model": "error"
-        }
+        
+        # Fall back to built-in local analyzer
+        print(f"[AI] Falling back to local analyzer due to Claude error")
+        local_result = generate_local_analysis(
+            framesScanned=req.framesScanned,
+            defectCount=req.defectCount,
+            passCount=req.passCount,
+            defectRate=req.defectRate,
+            catCounts=req.catCounts,
+            filename=req.filename
+        )
+        local_result["analysis"] += f"\n\n[System] Claude API error ({e.code}). Using built-in analyzer."
+        local_result["model"] = "visionz-local-fallback"
+        print(f"[AI] Local analyzer generated report successfully")
+        return local_result
 
     except urllib.error.URLError as e:
         print(f"[AI] Network error: {e.reason}")
-        # Fall back to Llama
-        print(f"[AI] Falling back to Llama due to network error")
-        llama_service = get_llama_service()
-        if llama_service.available:
-            llama_result = llama_service.generate_analysis(
-                framesScanned=req.framesScanned,
-                defectCount=req.defectCount,
-                passCount=req.passCount,
-                defectRate=req.defectRate,
-                catCounts=req.catCounts,
-                filename=req.filename
-            )
-            llama_result["analysis"] += f"\n\n⚠ Network error: {e.reason}\nFallback to Llama used."
-            llama_result["model"] = "llama-fallback"
-            return llama_result
-        return {
-            "analysis": f"⚠ Claude network error: {e.reason}\nLlama fallback unavailable.",
-            "model": "error"
-        }
+        # Fall back to built-in local analyzer
+        print(f"[AI] Falling back to local analyzer due to network error")
+        local_result = generate_local_analysis(
+            framesScanned=req.framesScanned,
+            defectCount=req.defectCount,
+            passCount=req.passCount,
+            defectRate=req.defectRate,
+            catCounts=req.catCounts,
+            filename=req.filename
+        )
+        local_result["analysis"] += f"\n\n[System] Network error connecting to Claude API. Using built-in analyzer."
+        local_result["model"] = "visionz-local-fallback"
+        print(f"[AI] Local analyzer generated report successfully")
+        return local_result
 
     except Exception as e:
         print(f"[AI] Unexpected error: {type(e).__name__}: {e}")
-        # Fall back to Llama
-        print(f"[AI] Falling back to Llama due to unexpected error")
-        llama_service = get_llama_service()
-        if llama_service.available:
-            llama_result = llama_service.generate_analysis(
-                framesScanned=req.framesScanned,
-                defectCount=req.defectCount,
-                passCount=req.passCount,
-                defectRate=req.defectRate,
-                catCounts=req.catCounts,
-                filename=req.filename
-            )
-            llama_result["analysis"] += f"\n\n⚠ Claude error: {str(e)}\nFallback to Llama used."
-            llama_result["model"] = "llama-fallback"
-            return llama_result
-        return {
-            "analysis": f"⚠ Error: {str(e)}\nLlama fallback unavailable.",
-            "model": "error"
-        }
+        # Fall back to built-in local analyzer
+        print(f"[AI] Falling back to local analyzer due to unexpected error")
+        local_result = generate_local_analysis(
+            framesScanned=req.framesScanned,
+            defectCount=req.defectCount,
+            passCount=req.passCount,
+            defectRate=req.defectRate,
+            catCounts=req.catCounts,
+            filename=req.filename
+        )
+        local_result["analysis"] += f"\n\n[System] Error connecting to Claude API. Using built-in analyzer."
+        local_result["model"] = "visionz-local-fallback"
+        print(f"[AI] Local analyzer generated report successfully")
+        return local_result
 
 
 @router.get("/models")
