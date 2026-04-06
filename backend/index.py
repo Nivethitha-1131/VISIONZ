@@ -7,11 +7,8 @@ import sys
 import os
 from pathlib import Path
 
-# Get the project root directory
-project_root = Path(__file__).parent.parent
-
-# Add backend to path
-backend_path = str(project_root / 'visionz_fixed' / 'backend')
+# Get the backend directory
+backend_path = str(Path(__file__).parent)
 sys.path.insert(0, backend_path)
 
 # Change to backend directory for relative imports

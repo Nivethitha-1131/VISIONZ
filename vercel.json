@@ -1,18 +1,22 @@
 {
   "framework": "python",
-  "publicPath": "frontend",
+  "python": {
+    "version": "3.10"
+  },
   "buildCommand": "pip install -r backend/requirements.txt",
+  "outputDirectory": "backend",
   "env": {
-    "PYTHONUNBUFFERED": "1"
+    "PYTHONUNBUFFERED": "1",
+    "ENVIRONMENT": "production"
   },
   "rewrites": [
     {
-      "source": "/api/:path*",
+      "source": "/api/(.*)",
       "destination": "/backend/index.py"
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/frontend/index.html"
     }
   ],
   "headers": [
