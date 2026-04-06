@@ -1,6 +1,5 @@
 {
   "framework": "python",
-  "pythonVersion": "3.10",
   "public": "public",
   "buildCommand": "pip install -r visionz_fixed/backend/requirements.txt",
   "env": {
