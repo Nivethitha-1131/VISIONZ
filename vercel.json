@@ -1,6 +1,6 @@
 {
   "framework": "python",
-  "public": "frontend",
+  "publicPath": "frontend",
   "buildCommand": "pip install -r backend/requirements.txt",
   "env": {
     "PYTHONUNBUFFERED": "1"
