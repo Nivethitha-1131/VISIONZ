@@ -1,8 +1,8 @@
 services:
   - type: web
     name: visionz-backend
-    runtime: python-3.10
-    buildCommand: pip install -r requirements.txt
+    runtime: python-3.10.0
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHONUNBUFFERED
@@ -11,3 +11,4 @@ services:
         value: production
       - key: DEBUG
         value: "false"
+    rootDir: backend
