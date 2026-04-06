@@ -6,11 +6,11 @@ pydantic[email]==2.7.1
 python-dotenv==1.0.0
 bcrypt==4.1.2
 PyJWT==2.12.1
-torch==2.2.0
-torchvision==0.17.0
+torch==2.11.0
+torchvision==0.16.0
 ollama==0.3.0
 ultralytics==8.2.0
-opencv-python==4.8.1.78
+opencv-python-headless==4.8.1.78
 numpy==1.24.3
 pillow==10.0.0
 requests==2.31.0

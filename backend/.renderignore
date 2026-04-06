@@ -1,0 +1,37 @@
+# Render Ignore - Files not needed for deployment
+
+# Version control
+.git/
+.gitignore
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.env
+
+# Frontend
+../frontend/
+package.json
+build.sh
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation
+../docs/
+*.md
+!README.md

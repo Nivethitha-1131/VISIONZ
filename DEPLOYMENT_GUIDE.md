@@ -17,32 +17,34 @@
 
 ---
 
-## Backend Deployment (Railway)
+## Backend Deployment (Render)
 
 **Files Used:**
-- `backend/Procfile` - Process file telling Railway how to start the app
-- `backend/railway.json` - Railway configuration
+- `backend/render.yaml` - Render deployment configuration (AUTO-DETECTED)
+- `backend/Procfile` - Process file for starting the app
 - `backend/requirements.txt` - Python dependencies
 - `backend/.env.example` - Environment variables template
 
 **Steps:**
-1. Create a new project in Railway
+1. Create a new service in Render
 2. Connect your GitHub repository
-3. Set the Root Directory to `backend/`
-4. Add environment variables from `backend/.env.example`:
+3. Select "Web Service" as the service type
+4. Set Root Directory to `backend/`
+5. Render will auto-detect `render.yaml` and use it
+6. Add environment variables from `backend/.env.example`:
    - `ENVIRONMENT=production`
    - `DATABASE_URL` - Set your database connection
    - `SECRET_KEY` - Generate a strong secret key
    - `CORS_ORIGINS` - Set to your Vercel frontend URL
    - All other required variables from `.env.example`
-5. Railway will auto-detect Procfile and start the app
-6. Deploy
+7. Deploy
 
-**Important Environment Variables for Railway:**
+**Important Environment Variables for Render:**
 - `CORS_ORIGINS`: Must match your Vercel frontend URL (e.g., https://your-app.vercel.app)
-- `DATABASE_URL`: Configure Railway PostgreSQL or external database
+- `DATABASE_URL`: Configure Postgres or external database
 - `SECRET_KEY`: Generate using: `python -c "import secrets; print(secrets.token_urlsafe(32))"`
 - `ENVIRONMENT`: Set to `production`
+- `DEBUG`: Set to `false`
 
 ---
 
@@ -66,9 +68,10 @@ const BACKEND_URL = 'https://your-railway-api-url.up.railway.app';
 │   ├── js/
 │   └── ...
 │
-├── backend/              # Railway deployment
-│   ├── Procfile          # ✅ Railway startup command
-│   ├── railway.json      # ✅ Railway config
+├── backend/              # Render deployment
+│   ├── render.yaml       # ✅ Render config (AUTO-DETECTED)
+│   ├── Procfile          # ✅ Start command
+│   ├── .renderignore     # ✅ Render ignore file
 │   ├── .env.example      # ✅ Environment template
 │   ├── requirements.txt   # ✅ Python dependencies
 │   ├── index.py          # (Vercel only - unused for Railway)
@@ -86,6 +89,6 @@ const BACKEND_URL = 'https://your-railway-api-url.up.railway.app';
 
 1. ✅ Push code to GitHub
 2. ✅ Deploy Frontend on Vercel
-3. ✅ Deploy Backend on Railway
-4. ✅ Configure CORS_ORIGINS on Railway to match Vercel frontend URL
+3. ✅ Deploy Backend on Render
+4. ✅ Configure CORS_ORIGINS on Render to match Vercel frontend URL
 5. ✅ Test API connectivity from frontend to backend
