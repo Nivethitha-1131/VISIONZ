@@ -1,0 +1,8 @@
+{"users": [
+  {"id": 1, "name": "Arun Kumar", "email": "arun@visionz.com", "role": "admin", "avatar": "AK", "department": "Quality Control"},
+  {"id": 2, "name": "Priya Sharma", "email": "priya@visionz.com", "role": "manager", "avatar": "PS", "department": "Production Management"},
+  {"id": 3, "name": "Ravi Operator", "email": "ravi@visionz.com", "role": "operator", "avatar": "RO", "department": "Line Operations"},
+  {"id": 4, "name": "Meena Devi", "email": "meena@visionz.com", "role": "admin", "avatar": "MD", "department": "Quality Control"},
+  {"id": 5, "name": "Karthik Raja", "email": "karthik@visionz.com", "role": "manager", "avatar": "KR", "department": "Analytics"},
+  {"id": 6, "name": "Nivethitha S", "email": "nivethitha@visionz.com", "role": "admin", "avatar": "NS", "department": "Quality Control"}
+]}

@@ -1,0 +1,5 @@
+{
+  "buildCommand": "echo 'Python build handled by Vercel'",
+  "framework": "python",
+  "pythonVersion": "3.10"
+}
