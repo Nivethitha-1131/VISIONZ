@@ -15,5 +15,6 @@ os.chdir(backend_path)
 
 from app.main import app
 
-# Export for Vercel
+# Vercel expects either 'app' or 'handler'
+# FastAPI app is exported as 'app' for Vercel Python runtime
 

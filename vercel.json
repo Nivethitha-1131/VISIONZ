@@ -1,20 +1,23 @@
 {
-  "buildCommand": "cd visionz_fixed/backend && pip install -r requirements.txt",
   "framework": "python",
   "pythonVersion": "3.10",
   "public": "public",
+  "buildCommand": "pip install -r visionz_fixed/backend/requirements.txt",
+  "env": {
+    "PYTHONUNBUFFERED": "1"
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "/api"
+      "destination": "/api/index.py"
     },
     {
-      "source": "/((?!api).*\\..*)",
-      "destination": "/$1"
+      "source": "/((?!api|js|data).*\\.(html|json|css|js))$",
+      "destination": "/public/$1"
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/public/index.html"
     }
   ],
   "headers": [
