@@ -1,45 +1,12 @@
 {
+  "NOTE": "This file is DEPRECATED. Use separate deployments:",
+  "comment": {
+    "frontend": "Deploy 'frontend/' to Vercel using frontend/vercel.json",
+    "backend": "Deploy 'backend/' to Railway using backend/Procfile"
+  },
   "framework": "python",
   "python": {
     "version": "3.10"
-  },
-  "buildCommand": "pip install -r backend/requirements.txt",
-  "outputDirectory": "backend",
-  "env": {
-    "PYTHONUNBUFFERED": "1",
-    "ENVIRONMENT": "production"
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/backend/index.py"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/frontend/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/api/:path*",
-      "headers": [
-        {
-          "key": "Access-Control-Allow-Credentials",
-          "value": "true"
-        },
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
-        }
-      ]
-    }
-  ]
+  }
 }
+

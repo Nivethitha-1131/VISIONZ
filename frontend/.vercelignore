@@ -1,0 +1,37 @@
+# Vercel Ignore for Frontend - Files to exclude from Vercel deployment
+
+# Backend (not needed for frontend)
+backend/
+vercel.json
+railway.json
+Procfile
+requirements.txt
+
+# Version control
+.git/
+.gitignore
+
+# IDEs  
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Docs (optional)
+docs/
+*.md
+!README.md
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Build artifacts
+node_modules/
+dist/
+build/
