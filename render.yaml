@@ -1,0 +1,43 @@
+services:
+  - type: web
+    name: visionz-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.10.14"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: LOG_LEVEL
+        value: "INFO"
+      - key: CORS_ORIGINS
+        value: "https://visionz.vercel.app"
+      - key: PORT
+        value: "10000"
+services:
+  - type: web
+    name: visionz-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install --upgrade pip setuptools wheel && pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.10.14"
+      - key: PYTHONUNBUFFERED
+        value: "1"
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      - key: LOG_LEVEL
+        value: "INFO"
+      - key: PORT
+        value: "10000"
+

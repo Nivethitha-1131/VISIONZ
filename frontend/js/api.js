@@ -8,7 +8,7 @@
  *  5. Session is only cleared by vzLogout()
  */
 
-const API_BASE = 'https://[your-username]-visionz-backend.hf.space/api';  // Update with your Hugging Face URL
+const API_BASE = 'https://visionz-backend.onrender.com/api';  // Render backend
 
 const LOCAL_USERS = [
   { name:'Arun Kumar',    email:'arun@visionz.com',       password:'arun123',     role:'admin',    avatar:'AK', department:'Quality Control' },
