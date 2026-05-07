@@ -8,7 +8,7 @@
  *  5. Session is only cleared by vzLogout()
  */
 
-const API_BASE = 'https://visionz-backend-production.up.railway.app/api';  // Railway backend URL
+const API_BASE = 'https://visionz-backend-production.koyeb.app/api';  // Update with your backend platform URL
 
 const LOCAL_USERS = [
   { name:'Arun Kumar',    email:'arun@visionz.com',       password:'arun123',     role:'admin',    avatar:'AK', department:'Quality Control' },
