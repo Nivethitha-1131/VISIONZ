@@ -8,7 +8,7 @@
  *  5. Session is only cleared by vzLogout()
  */
 
-const API_BASE = 'http://localhost:8000/api';
+const API_BASE = 'https://visionz-backend.onrender.com/api';  // Replace with your actual Render URL
 
 const LOCAL_USERS = [
   { name:'Arun Kumar',    email:'arun@visionz.com',       password:'arun123',     role:'admin',    avatar:'AK', department:'Quality Control' },
