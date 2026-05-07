@@ -1,6 +1,4 @@
 {
-  "buildCommand": "pip install -r ../backend/requirements.txt || echo 'No backend build needed'",
-  "outputDirectory": ".",
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
