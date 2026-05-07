@@ -57,7 +57,7 @@ class Settings(BaseSettings):
     RATE_LIMIT_WINDOW_SECONDS: int = int(os.getenv("RATE_LIMIT_WINDOW_SECONDS", 60))
     
     # Logging
-    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
+    LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO").upper()
     LOG_FILE: Optional[str] = os.getenv("LOG_FILE", None)
     
     class Config:
