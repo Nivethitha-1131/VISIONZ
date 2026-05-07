@@ -1,0 +1,14 @@
+{
+  "note": "Deployment configuration for VISIONZ project",
+  "frontend": {
+    "platform": "Vercel",
+    "location": "frontend/vercel.json",
+    "deployment": "https://visionz.vercel.app"
+  },
+  "backend": {
+    "platform": "Render",
+    "location": "render.yaml",
+    "deployment": "https://visionz-backend.onrender.com"
+  }
+}
+
