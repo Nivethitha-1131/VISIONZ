@@ -1,4 +1,12 @@
 {
-  "cleanUrls": true,
-  "trailingSlash": false
+  "version": 2,
+  "routes": [
+    { "src": "/login$", "dest": "/login.html" },
+    { "src": "/landing$", "dest": "/landing.html" },
+    { "src": "/profile$", "dest": "/profile.html" },
+    { "src": "/analytics$", "dest": "/analytics.html" },
+    { "src": "/reports$", "dest": "/reports.html" },
+    { "src": "/index$", "dest": "/index.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }
