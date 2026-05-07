@@ -144,20 +144,20 @@ Keep response under 200 words. Be direct and practical."""
         top_causes = ""
         if sorted_defects:
             for i, (defect, count) in enumerate(sorted_defects[:2], 1):
-                top_causes += f"\n    • {defect}: {count} occurrences detected"
+                top_causes += f"\n    - {defect}: {count} occurrences detected"
         
-        analysis = f"""VERDICT: {verdict} — Quality control review required for video {filename}
+        analysis = f"""VERDICT: {verdict} - Quality control review required for video {filename}
 
-ROOT CAUSES:{top_causes if top_causes else """
-    • No specific defects identified
-    • System operating within acceptable parameters"""}
+ROOT CAUSES:{top_causes if top_causes else '''
+    - No specific defects identified
+    - System operating within acceptable parameters'''}
 
 RECOMMENDATIONS:
     1. Review detected anomalies and validate detection accuracy
     2. Adjust camera angles or lighting if image quality issues detected
     3. Schedule maintenance if mechanical failures are suspected
 
-RISK LEVEL: {risk} — {'Immediate action recommended' if risk == 'High' else 'Monitor closely for improvements' if risk == 'Medium' else 'Continue normal operations'}"""
+RISK LEVEL: {risk} - {'Immediate action recommended' if risk == 'High' else 'Monitor closely for improvements' if risk == 'Medium' else 'Continue normal operations'}"""
         
         return {
             "analysis": analysis,
