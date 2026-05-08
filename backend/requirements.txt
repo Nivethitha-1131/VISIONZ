@@ -9,8 +9,8 @@ email-validator>=2.0.0
 python-dotenv==1.0.0
 bcrypt==4.1.2
 PyJWT==2.12.1
-torch==2.0.1
-torchvision==0.15.2
+torch==2.9.0
+torchvision==0.18.0
 ollama>=0.3.0
 ultralytics==8.2.11
 opencv-python-headless==4.8.0.74
