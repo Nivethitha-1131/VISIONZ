@@ -12,6 +12,14 @@ from datetime import datetime
 
 try:
     import torch
+    
+    # Monkey-patch torch.load to bypass weights_only=True restriction in PyTorch 2.6+
+    original_torch_load = torch.load
+    def bypass_weights_only_load(*args, **kwargs):
+        kwargs['weights_only'] = False
+        return original_torch_load(*args, **kwargs)
+    torch.load = bypass_weights_only_load
+    
     from ultralytics import YOLO
     TORCH_AVAILABLE = True
 except ImportError:
