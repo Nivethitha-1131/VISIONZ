@@ -8,7 +8,10 @@
  *  5. Session is only cleared by vzLogout()
  */
 
-const API_BASE = 'http://localhost:8000/api';  // Local backend (development)
+const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+const API_BASE = isProd 
+    ? 'https://visionz-backend.onrender.com/api' 
+    : 'http://localhost:8000/api';
 
 const LOCAL_USERS = [
   { name:'Arun Kumar',    email:'arun@visionz.com',       password:'arun123',     role:'admin',    avatar:'AK', department:'Quality Control' },
