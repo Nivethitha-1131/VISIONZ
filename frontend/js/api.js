@@ -8,7 +8,7 @@
  *  5. Session is only cleared by vzLogout()
  */
 
-const API_BASE = 'https://visionz-backend.onrender.com/api';  // Render backend
+const API_BASE = 'http://localhost:8000/api';  // Local backend (development)
 
 const LOCAL_USERS = [
   { name:'Arun Kumar',    email:'arun@visionz.com',       password:'arun123',     role:'admin',    avatar:'AK', department:'Quality Control' },
@@ -89,6 +89,12 @@ const AuthAPI = {
   logout: (token) => apiRequest('POST', '/auth/logout', { token }),
 };
 
+const UserAPI = {
+  getProfile: () => apiRequest('GET', '/users/profile', null, true),
+  getAll: () => apiRequest('GET', '/users/all', null, true),
+  update: (data) => apiRequest('PUT', '/users/profile', data, true),
+};
+
 const VideoAPI = {
   async upload(file) {
     try {
@@ -113,7 +119,7 @@ const AnalyticsAPI = {
 };
 
 const ReportsAPI = {
-  list:         () => apiRequest('GET', '/reports/'),
+  list:         (type) => apiRequest('GET', type ? `/reports/?period=${type}` : '/reports/'),
   create:       (d) => apiRequest('POST', '/reports/', d),
   markDownload: (id) => apiRequest('POST', '/reports/' + id + '/download'),
 };
