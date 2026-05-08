@@ -877,7 +877,8 @@ async function runAI() {
   const fname = document.getElementById('pbName').textContent || 'Video';
 
   try {
-    const res = await fetch('http://localhost:8000/api/ai/analyze', {
+    const API_BASE = isProd ? 'https://visionz-backend.onrender.com/api' : 'http://localhost:8000/api';
+    const res = await fetch(`${API_BASE}/ai/analyze`, {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({

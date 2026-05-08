@@ -94,7 +94,9 @@
     if (!confirm('Sign out of VISIONZ?')) return;
     const tok = localStorage.getItem('visionz_token');
     if (tok) {
-      try { await fetch('http://localhost:8000/api/auth/logout', {
+      // const isProd = window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+      // const API_BASE = isProd ? 'https://visionz-backend.onrender.com/api' : 'http://localhost:8000/api';
+      try { await fetch(`${API_BASE}/auth/logout`, {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ token: tok })
       }); } catch(_) {}
